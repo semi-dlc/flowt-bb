@@ -43,63 +43,53 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-cyan-100 to-primary/10 relative overflow-hidden">
-      {/* Premium animated background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-cyan-300/20 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-accent/15 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-primary/15 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
-      </div>
-      
-      <header className="glass sticky top-0 z-50 border-b border-primary/10">
-        <div className="container mx-auto px-6 py-5 flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <h1 className="text-3xl font-bold tracking-tight premium-text">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-8">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               FLOWT
             </h1>
-            <div className="hidden md:block h-10 w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent" />
-            <p className="hidden md:block text-sm text-muted-foreground max-w-lg font-medium">
-              Transform empty capacity into revenue.{" "}
-              <span className="premium-text font-semibold">
-                The intelligent freight marketplace.
-              </span>
+            <div className="hidden md:block h-6 w-px bg-border" />
+            <p className="hidden md:block text-sm text-muted-foreground max-w-lg">
+              The intelligent freight marketplace for capacity optimization
             </p>
           </div>
           {user ? (
-            <Button variant="outline" onClick={handleSignOut} className="glass-hover border-primary/20 hover:border-primary/40 font-medium">
+            <Button variant="ghost" onClick={handleSignOut} className="text-sm font-medium">
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
             </Button>
           ) : (
-            <Button onClick={() => navigate("/auth")} className="premium-gradient text-white font-semibold shadow-lg hover:shadow-xl transition-all">
-              Sign In / Sign Up
+            <Button onClick={() => navigate("/auth")} className="text-sm font-medium">
+              Sign In
             </Button>
           )}
         </div>
       </header>
 
-      <main className="container mx-auto px-6 py-12 relative z-10">
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <Tabs defaultValue="offers" className="w-full glass-card rounded-3xl p-8 shadow-2xl">
-              <div className="flex justify-between items-center mb-8">
-                <TabsList className="glass-card p-1.5">
-                  <TabsTrigger value="offers" className="data-[state=active]:premium-gradient data-[state=active]:text-white font-semibold px-6 py-2.5 rounded-lg transition-all">Available Capacity</TabsTrigger>
-                  <TabsTrigger value="requests" className="data-[state=active]:premium-gradient data-[state=active]:text-white font-semibold px-6 py-2.5 rounded-lg transition-all">Shipping Needs</TabsTrigger>
+      <main className="container mx-auto px-6 py-8">
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="offers" className="w-full">
+              <div className="flex justify-between items-center mb-6">
+                <TabsList className="bg-muted">
+                  <TabsTrigger value="offers" className="text-sm font-medium">Available Capacity</TabsTrigger>
+                  <TabsTrigger value="requests" className="text-sm font-medium">Shipping Needs</TabsTrigger>
                 </TabsList>
                 {user && (
-                  <div className="flex gap-3">
+                  <div className="flex gap-2">
                     <CreateOfferDialog />
                     <CreateRequestDialog />
                   </div>
                 )}
               </div>
 
-              <TabsContent value="offers" className="space-y-6">
+              <TabsContent value="offers" className="mt-0">
                 <OffersList />
               </TabsContent>
 
-              <TabsContent value="requests" className="space-y-6">
+              <TabsContent value="requests" className="mt-0">
                 <RequestsList />
               </TabsContent>
             </Tabs>

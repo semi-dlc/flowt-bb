@@ -105,26 +105,30 @@ All colors MUST be HSL.
 
 @layer utilities {
   .glass {
-    @apply bg-card/90 backdrop-blur-2xl border border-primary/10 shadow-lg;
+    @apply bg-card/80 backdrop-blur-xl border border-border shadow-sm;
   }
   
   .glass-card {
-    @apply bg-card/95 backdrop-blur-sm border border-border/50 shadow-lg;
+    @apply bg-card backdrop-blur-sm border border-border shadow-sm;
   }
   
   .glass-hover {
-    @apply transition-all duration-300 hover:shadow-2xl hover:border-primary/30;
+    @apply transition-all duration-200 hover:shadow-md hover:border-primary/20;
   }
   
   .premium-gradient {
-    @apply bg-gradient-to-br from-primary via-cyan-400 to-accent;
+    @apply bg-gradient-to-br from-primary to-primary/80;
   }
   
   .premium-text {
-    @apply bg-gradient-to-r from-primary via-cyan-400 to-accent bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent;
   }
   
-  .turquoise-glow {
-    @apply shadow-lg shadow-primary/20;
+  .saas-card {
+    @apply bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
+  }
+  
+  .saas-badge {
+    @apply inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-medium;
   }
 }

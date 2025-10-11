@@ -106,17 +106,17 @@ export const AIChat = () => {
         />
       )}
       
-      <Card className="h-[600px] flex flex-col glass-card rounded-3xl overflow-hidden shadow-2xl">
-        <CardHeader className="glass border-b border-primary/10 backdrop-blur-xl bg-gradient-to-br from-primary/5 to-accent/5">
+      <Card className="h-[600px] flex flex-col saas-card">
+        <CardHeader className="border-b border-border bg-muted/30">
           <CardTitle className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-primary/30 shadow-xl">
+            <div className="w-10 h-10 rounded-lg overflow-hidden bg-primary/10 flex items-center justify-center">
               <img src={flowtAgentImage} alt="FLOWT Agent" className="w-full h-full object-cover" />
             </div>
-            <span className="premium-text font-bold text-xl">
+            <span className="text-foreground font-semibold text-lg">
               FLOWT Agent
             </span>
           </CardTitle>
-          <CardDescription className="ml-15 font-medium">
+          <CardDescription className="ml-13">
             Ask about available capacity, shipping needs, or get route suggestions
           </CardDescription>
         </CardHeader>
@@ -126,49 +126,49 @@ export const AIChat = () => {
             {messages.map((message, idx) => (
               <div
                 key={idx}
-                className={`flex gap-3 animate-fade-in ${
+                className={`flex gap-3 ${
                   message.role === 'user' ? 'justify-end' : 'justify-start'
                 }`}
               >
                 {message.role === 'assistant' && (
-                  <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/30 shadow-xl glass">
+                  <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-primary/10 flex items-center justify-center">
                     <img src={flowtAgentImage} alt="FLOWT Agent" className="w-full h-full object-cover" />
                   </div>
                 )}
                 <div
-                  className={`rounded-2xl px-5 py-3.5 max-w-[80%] break-words shadow-xl transition-all hover:shadow-2xl ${
+                  className={`rounded-lg px-4 py-2.5 max-w-[80%] break-words ${
                     message.role === 'user'
-                      ? 'premium-gradient text-white font-medium'
-                      : 'glass-card border border-primary/10'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-foreground'
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere leading-relaxed">{message.content}</p>
                 </div>
                 {message.role === 'user' && (
-                  <div className="w-9 h-9 rounded-full premium-gradient flex items-center justify-center shrink-0 shadow-xl ring-2 ring-primary/30">
-                    <User className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
+                    <User className="w-4 h-4 text-primary-foreground" />
                   </div>
                 )}
               </div>
             ))}
             {loading && (
-              <div className="flex gap-3 animate-fade-in">
-                <div className="w-9 h-9 rounded-full overflow-hidden animate-pulse ring-2 ring-primary/30 shadow-xl glass">
+              <div className="flex gap-3">
+                <div className="w-8 h-8 rounded-lg overflow-hidden bg-primary/10 flex items-center justify-center">
                   <img src={flowtAgentImage} alt="FLOWT Agent" className="w-full h-full object-cover" />
                 </div>
-                <div className="glass-card rounded-2xl px-5 py-3.5 shadow-xl border border-primary/10">
-                  <p className="text-sm flex items-center gap-2">
-                    <span className="inline-block w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="inline-block w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="inline-block w-2.5 h-2.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="bg-muted rounded-lg px-4 py-2.5">
+                  <p className="text-sm flex items-center gap-1.5">
+                    <span className="inline-block w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="inline-block w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="inline-block w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </p>
                 </div>
               </div>
             )}
           </div>
         </ScrollArea>
-        <div className="space-y-2 border-t border-primary/10 pt-4 glass -mx-4 px-4 -mb-4 pb-4 backdrop-blur-xl bg-gradient-to-br from-primary/5 to-accent/5">
-          <div className="flex gap-3">
+        <div className="space-y-2 border-t border-border pt-3">
+          <div className="flex gap-2">
             <Input
               placeholder="Ask about shipping or capacity..."
               value={input}
@@ -176,17 +176,17 @@ export const AIChat = () => {
               onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
               disabled={loading}
               maxLength={2000}
-              className="glass-card focus-visible:ring-2 focus-visible:ring-primary shadow-xl border-primary/20 font-medium"
+              className="focus-visible:ring-2 focus-visible:ring-ring"
             />
             <Button 
               onClick={sendMessage} 
               disabled={loading}
-              className="premium-gradient text-white shadow-xl hover:shadow-2xl transition-all font-semibold px-5"
+              size="icon"
             >
               <Send className="w-4 h-4" />
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground font-medium">
+          <p className="text-xs text-muted-foreground">
             {input.length}/2000 characters
           </p>
         </div>

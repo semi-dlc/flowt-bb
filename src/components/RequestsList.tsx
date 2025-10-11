@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Package, MapPin, Calendar, AlertCircle, Building2 } from "lucide-react";
+import { Package, MapPin, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Request {
@@ -75,54 +73,53 @@ export const RequestsList = () => {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2">
       {requests.map((request) => (
-        <Card key={request.id} className="glass-card glass-hover overflow-hidden border-accent/20 shadow-xl rounded-2xl">
-          <CardHeader className="pb-5 bg-gradient-to-br from-accent/8 to-orange-500/5">
-            <div className="flex items-start gap-4">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-accent via-orange-500 to-orange-600 flex items-center justify-center shadow-2xl shadow-accent/20 transform hover:scale-105 transition-transform">
-                <Building2 className="w-8 h-8 text-white" strokeWidth={2.5} />
+        <Card key={request.id} className="saas-card">
+          <CardHeader className="pb-4">
+            <div className="flex items-start gap-3">
+              <div className="h-10 w-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                <Package className="w-5 h-5 text-accent" strokeWidth={2} />
               </div>
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-xl font-bold truncate text-foreground mb-2">
+                <CardTitle className="text-base font-semibold truncate text-foreground">
                   {request.company_name}
                 </CardTitle>
-                <Badge className="bg-gradient-to-r from-accent to-orange-600 text-white text-xs font-semibold border-0 shadow-md">
-                  <AlertCircle className="w-3.5 h-3.5 mr-1.5" />
-                  Urgent Need
-                </Badge>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Shipping Request
+                </p>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-5 pt-6 px-6 pb-6">
-            <div className="flex items-start gap-4 text-sm">
-              <MapPin className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
-              <div className="leading-relaxed flex-1">
-                <div className="font-bold text-foreground text-base">{request.origin_city}, {request.origin_country}</div>
-                <div className="text-muted-foreground text-sm my-2 font-medium">→</div>
-                <div className="font-bold text-foreground text-base">{request.destination_city}, {request.destination_country}</div>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-2 text-sm">
+              <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <span className="font-medium text-foreground">{request.origin_city}</span>
+                <span className="text-muted-foreground mx-2">→</span>
+                <span className="font-medium text-foreground">{request.destination_city}</span>
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
-                <Calendar className="w-5 h-5 flex-shrink-0 text-accent" />
-                <span className="text-sm font-semibold">By {new Date(request.needed_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+            <div className="flex gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <span className="text-foreground">{new Date(request.needed_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
               </div>
-              <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
-                <Package className="w-5 h-5 flex-shrink-0 text-accent" />
-                <span className="font-bold text-foreground text-sm">{request.weight_kg.toLocaleString()}kg</span>
-                {request.volume_m3 && <span className="text-muted-foreground text-xs">· {request.volume_m3}m³</span>}
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-muted-foreground" />
+                <span className="font-medium text-foreground">{request.weight_kg.toLocaleString()}kg</span>
+                {request.volume_m3 && <span className="text-muted-foreground">· {request.volume_m3}m³</span>}
               </div>
             </div>
             
-            <Badge variant="outline" className="text-xs font-semibold border-accent/40 bg-accent/5">{request.cargo_type}</Badge>
+            <span className="saas-badge bg-muted text-muted-foreground">{request.cargo_type}</span>
             
             {request.max_price_per_kg && (
-              <div className="pt-4 border-t border-border/50">
-                <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wide font-semibold">Max Budget</div>
-                <div className="text-3xl font-black premium-text">
-                  €{request.max_price_per_kg.toFixed(2)}<span className="text-base">/kg</span>
+              <div className="pt-3 border-t border-border">
+                <div className="text-xs text-muted-foreground mb-1">Max Budget</div>
+                <div className="text-2xl font-semibold text-foreground">
+                  €{request.max_price_per_kg.toFixed(2)}<span className="text-sm text-muted-foreground">/kg</span>
                 </div>
               </div>
             )}
