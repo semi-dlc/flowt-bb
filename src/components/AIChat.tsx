@@ -283,6 +283,7 @@ export const AIChat = () => {
             <Button
               variant="outline"
               size="icon"
+              className="w-16"
               onClick={() => fileInputRef.current?.click()}
               disabled={loading}
               title="Attach files (invoices, PDFs, images)"
