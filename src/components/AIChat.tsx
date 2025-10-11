@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsDeveloper } from "@/hooks/useIsDeveloper";
 import { AISettings } from "./AISettings";
 import { z } from "zod";
+import flowtAgentImage from "@/assets/flowt-agent.png";
 
 // Validation schema for chat messages
 const messageSchema = z.string()
@@ -126,8 +127,8 @@ export const AIChat = () => {
                 }`}
               >
                 {message.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
-                    <Bot className="w-4 h-4 text-primary-foreground" />
+                  <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
+                    <img src={flowtAgentImage} alt="FLOWT Agent" className="w-full h-full object-cover" />
                   </div>
                 )}
                 <div
@@ -148,8 +149,8 @@ export const AIChat = () => {
             ))}
             {loading && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-primary-foreground animate-pulse" />
+                <div className="w-8 h-8 rounded-full overflow-hidden animate-pulse">
+                  <img src={flowtAgentImage} alt="FLOWT Agent" className="w-full h-full object-cover" />
                 </div>
                 <div className="bg-muted rounded-lg px-4 py-2">
                   <p className="text-sm">Thinking...</p>
