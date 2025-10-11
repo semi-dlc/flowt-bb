@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Package, MapPin, Calendar, AlertCircle } from "lucide-react";
+import { Package, MapPin, Calendar, AlertCircle, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Request {
@@ -80,12 +80,9 @@ export const RequestsList = () => {
         <Card key={request.id} className="glass-card glass-hover overflow-hidden border-accent/20 shadow-xl rounded-2xl">
           <CardHeader className="pb-5 bg-gradient-to-br from-accent/8 to-orange-500/5">
             <div className="flex items-start gap-4">
-              <Avatar className="h-16 w-16 border-3 border-accent/20 shadow-xl">
-                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${request.company_name}&backgroundColor=f97316,ea580c,c2410c`} />
-                <AvatarFallback className="bg-gradient-to-br from-accent to-orange-600 text-white font-bold text-xl">
-                  {request.company_name?.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-accent via-orange-500 to-orange-600 flex items-center justify-center shadow-2xl shadow-accent/20 transform hover:scale-105 transition-transform">
+                <Building2 className="w-8 h-8 text-white" strokeWidth={2.5} />
+              </div>
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-xl font-bold truncate text-foreground mb-2">
                   {request.company_name}

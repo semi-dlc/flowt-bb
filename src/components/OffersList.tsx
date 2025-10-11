@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Package, MapPin, Calendar, Truck } from "lucide-react";
+import { Package, MapPin, Calendar, Truck, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Offer {
@@ -79,14 +79,11 @@ export const OffersList = () => {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {offers.map((offer) => (
         <Card key={offer.id} className="glass-card glass-hover overflow-hidden border-primary/20 shadow-xl rounded-2xl">
-          <CardHeader className="pb-5 bg-gradient-to-br from-primary/8 to-blue-500/5">
+          <CardHeader className="pb-5 bg-gradient-to-br from-primary/8 to-cyan-400/10">
             <div className="flex items-start gap-4">
-              <Avatar className="h-16 w-16 border-3 border-primary/20 shadow-xl">
-                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${offer.company_name}&backgroundColor=3b82f6,2563eb,1d4ed8`} />
-                <AvatarFallback className="premium-gradient text-white font-bold text-xl">
-                  {offer.company_name?.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="h-16 w-16 rounded-2xl premium-gradient flex items-center justify-center shadow-2xl turquoise-glow transform hover:scale-105 transition-transform">
+                <Building2 className="w-8 h-8 text-white" strokeWidth={2.5} />
+              </div>
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-xl font-bold truncate text-foreground mb-2">
                   {offer.company_name}
