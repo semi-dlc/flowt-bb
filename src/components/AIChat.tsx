@@ -131,13 +131,13 @@ export const AIChat = () => {
                   </div>
                 )}
                 <div
-                  className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                  className={`rounded-lg px-4 py-2 max-w-[80%] break-words ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">{message.content}</p>
                 </div>
                 {message.role === 'user' && (
                   <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center shrink-0">
