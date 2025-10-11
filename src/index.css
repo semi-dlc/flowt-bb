@@ -8,23 +8,23 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Premium Blue & Orange SaaS Theme */
-    --background: 214 100% 97%;
+    /* Premium Turquoise, Blue & Orange SaaS Theme */
+    --background: 186 75% 92%;
     --foreground: 222 47% 11%;
 
-    --card: 214 100% 99%;
+    --card: 186 70% 96%;
     --card-foreground: 222 47% 11%;
 
-    --popover: 214 100% 99%;
+    --popover: 186 70% 96%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 214 95% 56%;
+    --primary: 195 85% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 214 32% 91%;
+    --secondary: 186 50% 85%;
     --secondary-foreground: 222 47% 11%;
 
-    --muted: 214 32% 94%;
+    --muted: 186 40% 88%;
     --muted-foreground: 215 16% 47%;
 
     --accent: 25 95% 53%;
@@ -33,23 +33,23 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 88%;
-    --input: 214 32% 88%;
-    --ring: 214 95% 56%;
+    --border: 186 45% 82%;
+    --input: 186 45% 82%;
+    --ring: 195 85% 50%;
 
     --radius: 0.75rem;
     
     --success: 142 76% 36%;
     --warning: 38 92% 50%;
 
-    --sidebar-background: 214 100% 98%;
+    --sidebar-background: 186 70% 94%;
     --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 214 95% 56%;
+    --sidebar-primary: 195 85% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 214 32% 91%;
+    --sidebar-accent: 186 50% 85%;
     --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 214 32% 88%;
-    --sidebar-ring: 214 95% 56%;
+    --sidebar-border: 186 45% 82%;
+    --sidebar-ring: 195 85% 50%;
   }
 
   .dark {
@@ -117,10 +117,14 @@ All colors MUST be HSL.
   }
   
   .premium-gradient {
-    @apply bg-gradient-to-br from-primary via-blue-500 to-accent;
+    @apply bg-gradient-to-br from-primary via-cyan-400 to-accent;
   }
   
   .premium-text {
-    @apply bg-gradient-to-r from-primary via-blue-500 to-accent bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-cyan-400 to-accent bg-clip-text text-transparent;
+  }
+  
+  .turquoise-glow {
+    @apply shadow-lg shadow-primary/20;
   }
 }
