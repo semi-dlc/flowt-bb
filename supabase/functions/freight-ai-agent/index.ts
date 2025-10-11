@@ -376,7 +376,11 @@ Remember: You're building a relationship, not just running a search. Be helpful,
 
     console.log('Calling Lovable AI with context length:', context.length);
 
-    // Call Lovable AI Gateway (using Gemini - it's free!)
+    // Determine if we should use max_completion_tokens (newer models) or max_tokens (legacy)
+    const isNewerModel = model.startsWith('openai/gpt-5') || model.startsWith('openai/o3') || model.startsWith('openai/o4');
+    const tokenParameter = isNewerModel ? 'max_completion_tokens' : 'max_tokens';
+
+    // Call Lovable AI Gateway
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -386,8 +390,8 @@ Remember: You're building a relationship, not just running a search. Be helpful,
       body: JSON.stringify({
         model: model,
         messages: messages,
-        temperature: temperature,
-        max_tokens: maxTokens,
+        ...(isNewerModel ? {} : { temperature: temperature }), // Temperature not supported on newer models
+        [tokenParameter]: maxTokens,
       }),
     });
 
