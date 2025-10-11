@@ -17,18 +17,18 @@ serve(async (req) => {
       message, 
       conversationHistory, 
       attachments,
-      model = 'google/gemini-2.5-flash',
+      model = 'gpt-4o-mini',
       temperature = 0.7,
       maxTokens = 1500,
       systemPrompt
     } = await req.json();
     
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
-    if (!lovableApiKey) {
-      throw new Error('Lovable AI key not configured');
+    if (!openaiApiKey) {
+      throw new Error('OpenAI API key not configured');
     }
 
     // Initialize Supabase client
@@ -406,17 +406,17 @@ Remember: You're building a relationship, not just running a search. Be helpful,
       { role: 'user', content: userMessageContent }
     ];
 
-    console.log('Calling Lovable AI with context length:', context.length);
+    console.log('Calling OpenAI API with context length:', context.length);
 
     // Determine if we should use max_completion_tokens (newer models) or max_tokens (legacy)
-    const isNewerModel = model.startsWith('openai/gpt-5') || model.startsWith('openai/o3') || model.startsWith('openai/o4');
+    const isNewerModel = model.startsWith('gpt-5') || model.startsWith('o3') || model.startsWith('o4');
     const tokenParameter = isNewerModel ? 'max_completion_tokens' : 'max_tokens';
 
-    // Call Lovable AI Gateway
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Call OpenAI API
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'Authorization': `Bearer ${openaiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -430,7 +430,7 @@ Remember: You're building a relationship, not just running a search. Be helpful,
     if (!response.ok) {
       const errorText = await response.text();
       // Log detailed error SERVER-SIDE ONLY
-      console.error('[INTERNAL] Lovable AI Gateway error:', {
+      console.error('[INTERNAL] OpenAI API error:', {
         status: response.status,
         error: errorText,
         timestamp: new Date().toISOString()
