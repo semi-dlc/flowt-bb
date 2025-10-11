@@ -33,7 +33,7 @@ export const AIChat = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Hello! I\'m your freight ridesharing AI assistant. I can help you find available shipping capacity or match your shipping needs. What can I help you with today?'
+      content: 'Hi! I am your freight ridesharing assistant. Share your document or tell me how I can help you today.'
     }
   ]);
   const [input, setInput] = useState("");
