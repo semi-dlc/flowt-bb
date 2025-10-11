@@ -78,58 +78,58 @@ export const OffersList = () => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {offers.map((offer) => (
-        <Card key={offer.id} className="glass-card glass-hover overflow-hidden border-primary/20">
-          <CardHeader className="pb-4 bg-gradient-to-br from-primary/5 to-purple-500/5">
+        <Card key={offer.id} className="glass-card glass-hover overflow-hidden border-primary/20 shadow-xl rounded-2xl">
+          <CardHeader className="pb-5 bg-gradient-to-br from-primary/8 to-blue-500/5">
             <div className="flex items-start gap-4">
-              <Avatar className="h-14 w-14 border-2 border-primary/30 shadow-md">
-                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${offer.company_name}&backgroundColor=4f46e5,7c3aed,db2777`} />
-                <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-primary-foreground font-bold text-lg">
+              <Avatar className="h-16 w-16 border-3 border-primary/20 shadow-xl">
+                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${offer.company_name}&backgroundColor=3b82f6,2563eb,1d4ed8`} />
+                <AvatarFallback className="premium-gradient text-white font-bold text-xl">
                   {offer.company_name?.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-lg font-bold truncate text-foreground mb-1">
+                <CardTitle className="text-xl font-bold truncate text-foreground mb-2">
                   {offer.company_name}
                 </CardTitle>
-                <Badge variant="secondary" className="text-xs font-medium">
-                  <Truck className="w-3 h-3 mr-1.5" />
+                <Badge className="premium-gradient text-white text-xs font-semibold border-0 shadow-md">
+                  <Truck className="w-3.5 h-3.5 mr-1.5" />
                   {offer.vehicle_type || 'Truck'}
                 </Badge>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            <div className="flex items-start gap-3 text-sm">
-              <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-              <div className="leading-relaxed">
-                <div className="font-semibold text-foreground">{offer.origin_city}, {offer.origin_country}</div>
-                <div className="text-muted-foreground text-xs my-1">↓</div>
-                <div className="font-semibold text-foreground">{offer.destination_city}, {offer.destination_country}</div>
+          <CardContent className="space-y-5 pt-6 px-6 pb-6">
+            <div className="flex items-start gap-4 text-sm">
+              <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+              <div className="leading-relaxed flex-1">
+                <div className="font-bold text-foreground text-base">{offer.origin_city}, {offer.origin_country}</div>
+                <div className="text-muted-foreground text-sm my-2 font-medium">→</div>
+                <div className="font-bold text-foreground text-base">{offer.destination_city}, {offer.destination_country}</div>
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Calendar className="w-4 h-4 flex-shrink-0 text-primary/70" />
-                <span className="text-xs">{new Date(offer.departure_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
+                <Calendar className="w-5 h-5 flex-shrink-0 text-primary" />
+                <span className="text-sm font-semibold">{new Date(offer.departure_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Package className="w-4 h-4 flex-shrink-0 text-primary/70" />
-                <span className="font-semibold text-foreground text-xs">{offer.available_weight_kg.toLocaleString()}kg</span>
+              <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
+                <Package className="w-5 h-5 flex-shrink-0 text-primary" />
+                <span className="font-bold text-foreground text-sm">{offer.available_weight_kg.toLocaleString()}kg</span>
                 {offer.available_volume_m3 && <span className="text-muted-foreground text-xs">· {offer.available_volume_m3}m³</span>}
               </div>
             </div>
             
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {offer.cargo_types.slice(0, 3).map((type) => (
-                <Badge key={type} variant="outline" className="text-xs font-normal border-primary/30">{type}</Badge>
+                <Badge key={type} variant="outline" className="text-xs font-semibold border-primary/40 bg-primary/5">{type}</Badge>
               ))}
             </div>
             
             {offer.price_per_kg && (
-              <div className="pt-3 border-t">
-                <div className="text-2xl font-black bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                  €{offer.price_per_kg.toFixed(2)}<span className="text-sm">/kg</span>
+              <div className="pt-4 border-t border-border/50">
+                <div className="text-3xl font-black premium-text">
+                  €{offer.price_per_kg.toFixed(2)}<span className="text-base">/kg</span>
                 </div>
               </div>
             )}
