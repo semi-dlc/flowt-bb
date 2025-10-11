@@ -82,7 +82,7 @@ export const AIChat = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bot className="w-5 h-5" />
-          AI Freight Assistant
+          FLOWT Agent
         </CardTitle>
         <CardDescription>
           Ask about available capacity, shipping needs, or get route suggestions
