@@ -69,8 +69,14 @@ const Index = () => {
       </header>
 
       <main className="container mx-auto px-6 py-8">
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
+        <div className="space-y-6">
+          {/* AI Agent - Prominent position at top */}
+          <div className="w-full">
+            <AIChat />
+          </div>
+
+          {/* Offers and Requests - Below the agent */}
+          <div className="w-full">
             <Tabs defaultValue="offers" className="w-full">
               {user && (
                 <div className="flex justify-center gap-2 mb-4">
@@ -93,10 +99,6 @@ const Index = () => {
                 <RequestsList />
               </TabsContent>
             </Tabs>
-          </div>
-
-          <div className="lg:col-span-1">
-            <AIChat />
           </div>
         </div>
       </main>

@@ -16,7 +16,8 @@ serve(async (req) => {
     const { 
       message, 
       conversationHistory, 
-      model = 'openai/gpt-5-mini',
+      attachments,
+      model = 'google/gemini-2.5-flash',
       temperature = 0.7,
       maxTokens = 1500,
       systemPrompt
@@ -116,8 +117,39 @@ serve(async (req) => {
       context += '\n\nRecent Successful Matches: ' + bookings.length + ' bookings\n';
     }
 
+    // Build user message with attachments if provided
+    let userMessageContent: any = message;
+    
+    if (attachments && attachments.length > 0) {
+      // Format message with images for multimodal models
+      userMessageContent = [
+        { type: 'text', text: message }
+      ];
+      
+      for (const attachment of attachments) {
+        if (attachment.type.startsWith('image/')) {
+          userMessageContent.push({
+            type: 'image_url',
+            image_url: {
+              url: attachment.data
+            }
+          });
+        } else if (attachment.type === 'application/pdf' || attachment.type.includes('document')) {
+          // For PDFs and documents, add context about the file
+          userMessageContent[0].text += `\n\n[User uploaded a document: ${attachment.type}]`;
+        }
+      }
+    }
+
     // Build messages with custom or default system prompt
     const defaultSystemPrompt = `# FREIGHT MATCHING AI CONSULTANT
+    
+## DOCUMENT ANALYSIS CAPABILITIES
+You can analyze invoices, PDFs, shipping documents, and images uploaded by users. When analyzing documents:
+- Extract key information like routes, dates, weights, prices, cargo types
+- Identify shipping requirements or capacity offers
+- Suggest matches based on extracted data
+- Verify information and ask clarifying questions if needed
 
 ## YOUR IDENTITY & PURPOSE
 You are FLOWT's intelligent freight ridesharing consultant - a specialized AI assistant for a B2B freight capacity marketplace. You're not just a search tool; you're an expert consultant who understands logistics, helps optimize shipping operations, and builds relationships with users. Your mission is to reduce empty miles in freight transport while helping businesses save money and operate more sustainably.
@@ -371,7 +403,7 @@ Remember: You're building a relationship, not just running a search. Be helpful,
         content: systemPrompt || defaultSystemPrompt
       },
       ...(conversationHistory || []),
-      { role: 'user', content: message }
+      { role: 'user', content: userMessageContent }
     ];
 
     console.log('Calling Lovable AI with context length:', context.length);
