@@ -147,7 +147,7 @@ Be conversational, helpful, and proactive in suggesting matches. If you find goo
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'openai/gpt-5-mini',
         messages: messages,
       }),
     });
