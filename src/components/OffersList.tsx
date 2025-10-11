@@ -76,7 +76,7 @@ export const OffersList = () => {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {offers.map((offer) => (
-        <Card key={offer.id} className="saas-card">
+        <Card key={offer.id} className="saas-card border-l-4 border-l-primary">
           <CardHeader className="pb-4">
             <div className="flex items-start gap-3">
               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -108,7 +108,7 @@ export const OffersList = () => {
                 <span className="text-foreground">{new Date(offer.departure_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Package className="w-4 h-4 text-muted-foreground" />
+                <Package className="w-4 h-4 text-primary" />
                 <span className="font-medium text-foreground">{offer.available_weight_kg.toLocaleString()}kg</span>
                 {offer.available_volume_m3 && <span className="text-muted-foreground">· {offer.available_volume_m3}m³</span>}
               </div>

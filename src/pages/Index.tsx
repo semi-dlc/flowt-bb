@@ -61,7 +61,7 @@ const Index = () => {
               Sign Out
             </Button>
           ) : (
-            <Button onClick={() => navigate("/auth")} className="text-sm font-medium">
+            <Button onClick={() => navigate("/auth")} className="bg-accent hover:bg-accent/90 text-white text-sm font-medium">
               Sign In
             </Button>
           )}
@@ -74,8 +74,8 @@ const Index = () => {
             <Tabs defaultValue="offers" className="w-full">
               <div className="flex justify-between items-center mb-6">
                 <TabsList className="bg-muted">
-                  <TabsTrigger value="offers" className="text-sm font-medium">Available Capacity</TabsTrigger>
-                  <TabsTrigger value="requests" className="text-sm font-medium">Shipping Needs</TabsTrigger>
+                  <TabsTrigger value="offers" className="text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Available Capacity</TabsTrigger>
+                  <TabsTrigger value="requests" className="text-sm font-medium data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Shipping Needs</TabsTrigger>
                 </TabsList>
                 {user && (
                   <div className="flex gap-2">
