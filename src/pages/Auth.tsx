@@ -26,10 +26,7 @@ const signUpSchema = z.object({
     .email({ message: "Invalid email address" })
     .max(255, { message: "Email too long" }),
   password: z.string()
-    .min(8, { message: "Password must be at least 8 characters" })
-    .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
-    .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
-    .regex(/[0-9]/, { message: "Password must contain at least one number" }),
+    .min(1, { message: "Password is required" }),
   companyName: z.string()
     .trim()
     .min(2, { message: "Company name must be at least 2 characters" })
@@ -229,11 +226,7 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={8}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Must be at least 8 characters with uppercase, lowercase, and number
-                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Creating account..." : "Create Account"}
