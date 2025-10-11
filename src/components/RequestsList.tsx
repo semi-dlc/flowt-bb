@@ -1,21 +1,28 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, MapPin, Calendar } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Package, MapPin, Calendar, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Request {
   id: string;
-  user_id: string;
-  origin_city: string;
-  origin_country: string;
-  destination_city: string;
-  destination_country: string;
-  needed_date: string;
-  weight_kg: number;
-  volume_m3: number | null;
-  cargo_type: string;
-  max_price_per_kg: number | null;
+  demand_id: string;
+  route: {
+    origin?: { city?: string; country_code?: string };
+    destination?: { city?: string; country_code?: string };
+    pickup_date_required?: { earliest?: string; latest?: string };
+  };
+  cargo: {
+    description?: string;
+    weight_kg?: number;
+    volume_m3?: number;
+  };
+  dangerous_goods?: {
+    is_dangerous?: boolean;
+  };
+  shipper?: {
+    company_name?: string;
+  };
   company_name?: string;
 }
 
@@ -29,7 +36,6 @@ export const RequestsList = () => {
   }, []);
 
   const fetchRequests = async () => {
-    // Fetch shipment requests
     const { data: requestsData, error: requestsError } = await supabase
       .from('shipment_requests')
       .select('*')
@@ -55,12 +61,17 @@ export const RequestsList = () => {
         .in('id', userIds);
 
       // Merge company names with requests
-      const requestsWithCompanies = requestsData.map(request => ({
-        ...request,
-        company_name: profilesData?.find(p => p.id === request.user_id)?.company_name || 'Unknown Company'
-      }));
+      const requestsWithCompanies = requestsData.map(request => {
+        const shipperData = request.shipper as any;
+        return {
+          ...request,
+          company_name: profilesData?.find(p => p.id === request.user_id)?.company_name || 
+                       shipperData?.company_name || 
+                       'Unknown Company'
+        };
+      });
 
-      setRequests(requestsWithCompanies);
+      setRequests(requestsWithCompanies as any);
     } else {
       setRequests([]);
     }
@@ -95,32 +106,46 @@ export const RequestsList = () => {
             <div className="flex items-center gap-2 text-sm">
               <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <span className="font-medium text-foreground">{request.origin_city}</span>
+                <span className="font-medium text-foreground">
+                  {request.route?.origin?.city || 'N/A'}, {request.route?.origin?.country_code || 'N/A'}
+                </span>
                 <span className="text-muted-foreground mx-2">→</span>
-                <span className="font-medium text-foreground">{request.destination_city}</span>
+                <span className="font-medium text-foreground">
+                  {request.route?.destination?.city || 'N/A'}, {request.route?.destination?.country_code || 'N/A'}
+                </span>
               </div>
             </div>
             
             <div className="flex gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-accent" />
-                <span className="text-foreground">{new Date(request.needed_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                <span className="text-foreground">
+                  {request.route?.pickup_date_required?.earliest 
+                    ? new Date(request.route.pickup_date_required.earliest).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                    : 'TBD'}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <Package className="w-4 h-4 text-accent" />
-                <span className="font-medium text-foreground">{request.weight_kg.toLocaleString()}kg</span>
-                {request.volume_m3 && <span className="text-muted-foreground">· {request.volume_m3}m³</span>}
+                <span className="font-medium text-foreground">
+                  {request.cargo?.weight_kg?.toLocaleString() || 0}kg
+                </span>
+                {request.cargo?.volume_m3 && (
+                  <span className="text-muted-foreground">· {request.cargo.volume_m3}m³</span>
+                )}
               </div>
             </div>
             
-            <span className="saas-badge bg-accent/10 text-accent">{request.cargo_type}</span>
-            
-            {request.max_price_per_kg && (
-              <div className="pt-3 border-t border-border">
-                <div className="text-xs text-muted-foreground mb-1">Max Budget</div>
-                <div className="text-2xl font-semibold text-accent">
-                  €{request.max_price_per_kg.toFixed(2)}<span className="text-sm text-muted-foreground">/kg</span>
-                </div>
+            {request.cargo?.description && (
+              <span className="saas-badge bg-accent/10 text-accent">
+                {request.cargo.description}
+              </span>
+            )}
+
+            {request.dangerous_goods?.is_dangerous && (
+              <div className="flex items-center gap-2 text-xs">
+                <AlertTriangle className="w-3 h-3 text-destructive" />
+                <span className="text-destructive font-medium">Dangerous Goods</span>
               </div>
             )}
           </CardContent>

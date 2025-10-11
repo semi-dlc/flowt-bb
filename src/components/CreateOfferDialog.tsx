@@ -7,23 +7,21 @@ import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { Checkbox } from "@/components/ui/checkbox";
 
-// Validation schema
+// Validation schema for new JSONB structure
 const offerSchema = z.object({
-  origin_city: z.string().trim().min(2, "City name too short").max(100, "City name too long")
-    .regex(/^[a-zA-Z\s\-]+$/, "Invalid city name"),
-  origin_country: z.string().trim().min(2, "Country name too short").max(100, "Country name too long")
-    .regex(/^[a-zA-Z\s\-]+$/, "Invalid country name"),
-  destination_city: z.string().trim().min(2, "City name too short").max(100, "City name too long")
-    .regex(/^[a-zA-Z\s\-]+$/, "Invalid city name"),
-  destination_country: z.string().trim().min(2, "Country name too short").max(100, "Country name too long")
-    .regex(/^[a-zA-Z\s\-]+$/, "Invalid country name"),
+  origin_city: z.string().trim().min(2, "City name too short"),
+  origin_country: z.string().trim().min(2, "Country too short"),
+  destination_city: z.string().trim().min(2, "City name too short"),
+  destination_country: z.string().trim().min(2, "Country too short"),
   departure_date: z.string().refine(d => !isNaN(Date.parse(d)), "Invalid date"),
-  available_weight_kg: z.number().positive("Weight must be positive").max(100000, "Weight too large"),
-  available_volume_m3: z.number().positive("Volume must be positive").max(1000, "Volume too large").optional(),
-  price_per_kg: z.number().positive("Price must be positive").max(10000, "Price too large").optional(),
-  vehicle_type: z.string().trim().max(50, "Vehicle type too long").optional(),
-  cargo_types: z.array(z.string()).min(1, "Select at least one cargo type").max(10, "Too many cargo types")
+  available_weight_kg: z.number().positive("Weight must be positive"),
+  available_volume_m3: z.number().positive("Volume must be positive").optional(),
+  price_per_kg: z.number().positive("Price must be positive").optional(),
+  vehicle_type: z.string().trim().optional(),
+  fuel_type: z.string().trim().optional(),
+  adr_certified: z.boolean(),
 });
 
 export const CreateOfferDialog = () => {
@@ -36,9 +34,7 @@ export const CreateOfferDialog = () => {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const cargoTypes = formData.get('cargo_types')?.toString().split(',').map(t => t.trim()).filter(Boolean) || [];
 
-    // Validate input
     const validation = offerSchema.safeParse({
       origin_city: formData.get("origin_city"),
       origin_country: formData.get("origin_country"),
@@ -49,7 +45,8 @@ export const CreateOfferDialog = () => {
       available_volume_m3: formData.get("available_volume_m3") ? Number(formData.get("available_volume_m3")) : undefined,
       price_per_kg: formData.get("price_per_kg") ? Number(formData.get("price_per_kg")) : undefined,
       vehicle_type: formData.get("vehicle_type") || undefined,
-      cargo_types: cargoTypes
+      fuel_type: formData.get("fuel_type") || undefined,
+      adr_certified: formData.get("adr_certified") === "on",
     });
 
     if (!validation.success) {
@@ -75,17 +72,36 @@ export const CreateOfferDialog = () => {
 
     const { error } = await supabase.from('shipment_offers').insert({
       user_id: user.id,
-      origin_city: validation.data.origin_city,
-      origin_country: validation.data.origin_country,
-      destination_city: validation.data.destination_city,
-      destination_country: validation.data.destination_country,
-      departure_date: validation.data.departure_date,
-      available_weight_kg: validation.data.available_weight_kg,
-      available_volume_m3: validation.data.available_volume_m3 || null,
-      cargo_types: validation.data.cargo_types,
-      price_per_kg: validation.data.price_per_kg || null,
-      vehicle_type: validation.data.vehicle_type || null,
-    } as any);
+      route: {
+        origin: {
+          city: validation.data.origin_city,
+          country_code: validation.data.origin_country
+        },
+        destination: {
+          city: validation.data.destination_city,
+          country_code: validation.data.destination_country
+        },
+        pickup_date_range: {
+          earliest: validation.data.departure_date
+        }
+      },
+      capacity: {
+        available_weight_kg: validation.data.available_weight_kg,
+        available_volume_m3: validation.data.available_volume_m3
+      },
+      vehicle: {
+        type: validation.data.vehicle_type,
+        fuel_type: validation.data.fuel_type
+      },
+      pricing: {
+        price_per_kg: validation.data.price_per_kg
+      },
+      accepted_cargo_types: {
+        dangerous_goods_accepted: validation.data.adr_certified
+      },
+      carrier: {},
+      customs_capabilities: {}
+    });
 
     if (error) {
       toast({
@@ -127,16 +143,16 @@ export const CreateOfferDialog = () => {
               <Input id="origin_city" name="origin_city" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="origin_country">Origin Country</Label>
-              <Input id="origin_country" name="origin_country" required />
+              <Label htmlFor="origin_country">Origin Country Code</Label>
+              <Input id="origin_country" name="origin_country" placeholder="DE" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="destination_city">Destination City</Label>
               <Input id="destination_city" name="destination_city" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="destination_country">Destination Country</Label>
-              <Input id="destination_country" name="destination_country" required />
+              <Label htmlFor="destination_country">Destination Country Code</Label>
+              <Input id="destination_country" name="destination_country" placeholder="FR" required />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -157,13 +173,21 @@ export const CreateOfferDialog = () => {
               <Input id="price_per_kg" name="price_per_kg" type="number" step="0.01" />
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="cargo_types">Cargo Types (comma separated)</Label>
-            <Input id="cargo_types" name="cargo_types" placeholder="pallets, containers" required />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="vehicle_type">Vehicle Type</Label>
+              <Input id="vehicle_type" name="vehicle_type" placeholder="Truck, Van, etc." />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="fuel_type">Fuel Type</Label>
+              <Input id="fuel_type" name="fuel_type" placeholder="diesel, electric, etc." />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="vehicle_type">Vehicle Type</Label>
-            <Input id="vehicle_type" name="vehicle_type" placeholder="Truck, Van, etc." />
+          <div className="flex items-center space-x-2">
+            <Checkbox id="adr_certified" name="adr_certified" />
+            <Label htmlFor="adr_certified" className="text-sm font-normal">
+              ADR Certified (Dangerous Goods)
+            </Label>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Creating..." : "Create Offer"}
