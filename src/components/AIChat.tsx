@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Bot, Send, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +29,7 @@ export const AIChat = () => {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [model, setModel] = useState("openai/gpt-5-mini");
   const { toast } = useToast();
 
   const sendMessage = async () => {
@@ -56,7 +58,8 @@ export const AIChat = () => {
       const { data, error } = await supabase.functions.invoke('freight-ai-agent', {
         body: {
           message: userMessage,
-          conversationHistory: recentHistory
+          conversationHistory: recentHistory,
+          model: model
         }
       });
 
@@ -80,13 +83,28 @@ export const AIChat = () => {
   return (
     <Card className="h-[600px] flex flex-col">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Bot className="w-5 h-5" />
-          FLOWT Agent
-        </CardTitle>
-        <CardDescription>
-          Ask about available capacity, shipping needs, or get route suggestions
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Bot className="w-5 h-5" />
+              FLOWT Agent
+            </CardTitle>
+            <CardDescription>
+              Ask about available capacity, shipping needs, or get route suggestions
+            </CardDescription>
+          </div>
+          <Select value={model} onValueChange={setModel}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="openai/gpt-5-mini">OpenAI GPT-5 Mini</SelectItem>
+              <SelectItem value="openai/gpt-5">OpenAI GPT-5</SelectItem>
+              <SelectItem value="google/gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
+              <SelectItem value="google/gemini-2.5-pro">Gemini 2.5 Pro</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-4 p-4">
         <ScrollArea className="flex-1 pr-4">

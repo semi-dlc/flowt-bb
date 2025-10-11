@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, conversationHistory } = await req.json();
+    const { message, conversationHistory, model = 'openai/gpt-5-mini' } = await req.json();
     
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -147,7 +147,7 @@ Be conversational, helpful, and proactive in suggesting matches. If you find goo
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-5-mini',
+        model: model,
         messages: messages,
       }),
     });
