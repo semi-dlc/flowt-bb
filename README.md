@@ -1,13 +1,13 @@
-# FLOWT – AI-Powered Freight Ridesharing
+# FLOWT – AI-Powered Sustainable Freight Ridesharing
 
-FLOWT matches unused trucking capacity with shippers that need space. The platform combines a Supabase-backed marketplace for offers and requests with an AI co-pilot that understands live supply and demand, helping logistics teams collaborate, fill empty miles, and ship more sustainably.
+FLOWT matches unused trucking capacity with shippers that need space. The platform combines a marketplace for offers and requests with an agent that coordinates live supply and demand, helping logistics teams collaborate, and filling empty miles. 
 
 ## Product Highlights
 - B2B freight marketplace where carriers publish open capacity and shippers post their loads.
-- Role-aware Supabase Auth with profile onboarding for logistics companies.
+- Profile onboarding for logistics companies through Supabase.
 - Rich offer/request management with validation for weights, routes, pricing, and cargo types.
 - Real-time AI assistant (`supabase/functions/freight-ai-agent`) that answers route questions and recommends matches using database context.
-- Developer-only controls for tuning AI models, temperature, prompts, and token budgets.
+- Developer control for tuning AI models, temperature, prompts, and token budgets.
 
 ## Tech Stack
 - React 18 + Vite + TypeScript for the SPA.
@@ -18,7 +18,6 @@ FLOWT matches unused trucking capacity with shippers that need space. The platfo
 ## Prerequisites
 - Node.js 20+ and npm.
 - Supabase account & CLI (to run the database locally or manage migrations).
-- Lovable AI gateway key (used by the freight AI agent).
 
 ## Getting Started
 ```bash
