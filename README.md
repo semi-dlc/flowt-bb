@@ -1,6 +1,9 @@
 # FLOWT – AI-Powered Sustainable Freight Ridesharing
-
 FLOWT matches unused trucking capacity with shippers that need space. The platform combines a marketplace for offers and requests with an agent that coordinates live supply and demand, helping logistics teams collaborate, and filling empty miles. 
+
+## TODO
+- Connect to OSM to calculate route and get coordinates of places when entering data.
+- Connect app to invoices and Bill of Loadings.
 
 ## Product Highlights
 - B2B freight marketplace where carriers publish open capacity and shippers post their loads.
