@@ -282,13 +282,12 @@ export const AIChat = () => {
             />
             <Button
               variant="outline"
-              size="lg"
+              size="icon"
               onClick={() => fileInputRef.current?.click()}
               disabled={loading}
               title="Attach files (invoices, PDFs, images)"
-              className="w-12 h-12"
             >
-              <Paperclip className="w-5 h-5" />
+              <Paperclip className="w-4 h-4" />
             </Button>
             <Input
               placeholder="Ask about shipping, capacity, or upload documents..."
