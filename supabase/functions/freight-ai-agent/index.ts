@@ -15,12 +15,12 @@ serve(async (req) => {
   try {
     const { message, conversationHistory } = await req.json();
     
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+    if (!lovableApiKey) {
+      throw new Error('Lovable AI key not configured');
     }
 
     // Initialize Supabase client
@@ -137,31 +137,38 @@ Be conversational, helpful, and proactive in suggesting matches. If you find goo
       { role: 'user', content: message }
     ];
 
-    console.log('Calling OpenAI with context length:', context.length);
+    console.log('Calling Lovable AI with context length:', context.length);
 
-    // Call OpenAI API
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Call Lovable AI Gateway (using Gemini - it's free!)
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-5-mini-2025-08-07',
+        model: 'google/gemini-2.5-flash',
         messages: messages,
-        max_completion_tokens: 1000,
-        temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       // Log detailed error SERVER-SIDE ONLY
-      console.error('[INTERNAL] OpenAI API error:', {
+      console.error('[INTERNAL] Lovable AI Gateway error:', {
         status: response.status,
         error: errorText,
         timestamp: new Date().toISOString()
       });
+      
+      // Handle specific error cases
+      if (response.status === 429) {
+        throw new Error('Rate limit reached. Please try again in a moment.');
+      }
+      if (response.status === 402) {
+        throw new Error('AI service requires payment. Please contact support.');
+      }
+      
       // Return generic error to CLIENT
       throw new Error('AI service temporarily unavailable. Please try again.');
     }
