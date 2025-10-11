@@ -13,7 +13,14 @@ serve(async (req) => {
   }
 
   try {
-    const { message, conversationHistory, model = 'openai/gpt-5-mini' } = await req.json();
+    const { 
+      message, 
+      conversationHistory, 
+      model = 'openai/gpt-5-mini',
+      temperature = 0.7,
+      maxTokens = 1000,
+      systemPrompt
+    } = await req.json();
     
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -109,11 +116,8 @@ serve(async (req) => {
       context += '\n\nRecent Successful Matches: ' + bookings.length + ' bookings\n';
     }
 
-    // Build messages for OpenAI with RAG context
-    const messages = [
-      {
-        role: 'system',
-        content: `You are an intelligent freight ridesharing AI assistant for a B2B platform. Your role is to help businesses find shipping capacity or shipping needs matches.
+    // Build messages with custom or default system prompt
+    const defaultSystemPrompt = `You are an intelligent freight ridesharing AI assistant for a B2B platform. Your role is to help businesses find shipping capacity or shipping needs matches.
 
 Key capabilities:
 - Help users find available transport capacity for their shipments
@@ -131,7 +135,12 @@ When making recommendations:
 4. Compare pricing expectations
 5. Consider weight/volume capacity
 
-Be conversational, helpful, and proactive in suggesting matches. If you find good matches, explain why they're suitable.`
+Be conversational, helpful, and proactive in suggesting matches. If you find good matches, explain why they're suitable.`;
+
+    const messages = [
+      {
+        role: 'system',
+        content: systemPrompt || defaultSystemPrompt
       },
       ...(conversationHistory || []),
       { role: 'user', content: message }
@@ -149,6 +158,8 @@ Be conversational, helpful, and proactive in suggesting matches. If you find goo
       body: JSON.stringify({
         model: model,
         messages: messages,
+        temperature: temperature,
+        max_tokens: maxTokens,
       }),
     });
 

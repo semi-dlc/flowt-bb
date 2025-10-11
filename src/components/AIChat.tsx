@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Bot, Send, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useIsDeveloper } from "@/hooks/useIsDeveloper";
+import { AISettings } from "./AISettings";
 import { z } from "zod";
 
 // Validation schema for chat messages
@@ -30,7 +31,13 @@ export const AIChat = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [model, setModel] = useState("openai/gpt-5-mini");
+  const [temperature, setTemperature] = useState(0.7);
+  const [maxTokens, setMaxTokens] = useState(1000);
+  const [systemPrompt, setSystemPrompt] = useState(
+    "You are an intelligent freight ridesharing AI assistant. Help users find shipping capacity or matches."
+  );
   const { toast } = useToast();
+  const { isDeveloper, loading: roleLoading } = useIsDeveloper();
 
   const sendMessage = async () => {
     if (loading) return;
@@ -59,7 +66,10 @@ export const AIChat = () => {
         body: {
           message: userMessage,
           conversationHistory: recentHistory,
-          model: model
+          model: model,
+          temperature: temperature,
+          maxTokens: maxTokens,
+          systemPrompt: systemPrompt
         }
       });
 
@@ -81,31 +91,30 @@ export const AIChat = () => {
   };
 
   return (
-    <Card className="h-[600px] flex flex-col">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Bot className="w-5 h-5" />
-              FLOWT Agent
-            </CardTitle>
-            <CardDescription>
-              Ask about available capacity, shipping needs, or get route suggestions
-            </CardDescription>
-          </div>
-          <Select value={model} onValueChange={setModel}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="openai/gpt-5-mini">OpenAI GPT-5 Mini</SelectItem>
-              <SelectItem value="openai/gpt-5">OpenAI GPT-5</SelectItem>
-              <SelectItem value="google/gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
-              <SelectItem value="google/gemini-2.5-pro">Gemini 2.5 Pro</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </CardHeader>
+    <div className="space-y-4">
+      {isDeveloper && !roleLoading && (
+        <AISettings
+          model={model}
+          setModel={setModel}
+          temperature={temperature}
+          setTemperature={setTemperature}
+          maxTokens={maxTokens}
+          setMaxTokens={setMaxTokens}
+          systemPrompt={systemPrompt}
+          setSystemPrompt={setSystemPrompt}
+        />
+      )}
+      
+      <Card className="h-[600px] flex flex-col">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bot className="w-5 h-5" />
+            FLOWT Agent
+          </CardTitle>
+          <CardDescription>
+            Ask about available capacity, shipping needs, or get route suggestions
+          </CardDescription>
+        </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-4 p-4">
         <ScrollArea className="flex-1 pr-4">
           <div className="space-y-4">
@@ -169,5 +178,6 @@ export const AIChat = () => {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 };
