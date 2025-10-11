@@ -106,13 +106,17 @@ export const AIChat = () => {
         />
       )}
       
-      <Card className="h-[600px] flex flex-col">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bot className="w-5 h-5" />
-            FLOWT Agent
+      <Card className="h-[600px] flex flex-col bg-gradient-to-br from-background via-background to-primary/5 border-2 shadow-xl">
+        <CardHeader className="border-b bg-gradient-to-r from-primary/10 to-primary/5">
+          <CardTitle className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/20">
+              <img src={flowtAgentImage} alt="FLOWT Agent" className="w-full h-full object-cover" />
+            </div>
+            <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              FLOWT Agent
+            </span>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="ml-13">
             Ask about available capacity, shipping needs, or get route suggestions
           </CardDescription>
         </CardHeader>
@@ -122,44 +126,48 @@ export const AIChat = () => {
             {messages.map((message, idx) => (
               <div
                 key={idx}
-                className={`flex gap-3 ${
+                className={`flex gap-3 animate-fade-in ${
                   message.role === 'user' ? 'justify-end' : 'justify-start'
                 }`}
               >
                 {message.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
+                  <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/20 shadow-md">
                     <img src={flowtAgentImage} alt="FLOWT Agent" className="w-full h-full object-cover" />
                   </div>
                 )}
                 <div
-                  className={`rounded-lg px-4 py-2 max-w-[80%] break-words ${
+                  className={`rounded-2xl px-4 py-3 max-w-[80%] break-words shadow-md transition-all hover:shadow-lg ${
                     message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
+                      ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground'
+                      : 'bg-gradient-to-br from-muted to-muted/80 border border-border/50'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere leading-relaxed">{message.content}</p>
                 </div>
                 {message.role === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center shrink-0 shadow-md ring-2 ring-accent/20">
                     <User className="w-4 h-4 text-accent-foreground" />
                   </div>
                 )}
               </div>
             ))}
             {loading && (
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full overflow-hidden animate-pulse">
+              <div className="flex gap-3 animate-fade-in">
+                <div className="w-8 h-8 rounded-full overflow-hidden animate-pulse ring-2 ring-primary/30 shadow-md">
                   <img src={flowtAgentImage} alt="FLOWT Agent" className="w-full h-full object-cover" />
                 </div>
-                <div className="bg-muted rounded-lg px-4 py-2">
-                  <p className="text-sm">Thinking...</p>
+                <div className="bg-gradient-to-br from-muted to-muted/80 rounded-2xl px-4 py-3 border border-border/50 shadow-md">
+                  <p className="text-sm flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="inline-block w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="inline-block w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </p>
                 </div>
               </div>
             )}
           </div>
         </ScrollArea>
-        <div className="space-y-2">
+        <div className="space-y-2 border-t pt-4 bg-gradient-to-r from-primary/5 to-transparent -mx-4 px-4 -mb-4 pb-4">
           <div className="flex gap-2">
             <Input
               placeholder="Ask about shipping or capacity..."
@@ -168,8 +176,13 @@ export const AIChat = () => {
               onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
               disabled={loading}
               maxLength={2000}
+              className="border-2 focus-visible:ring-2 focus-visible:ring-primary/30 shadow-sm"
             />
-            <Button onClick={sendMessage} disabled={loading}>
+            <Button 
+              onClick={sendMessage} 
+              disabled={loading}
+              className="shadow-md hover:shadow-lg transition-all hover:scale-105"
+            >
               <Send className="w-4 h-4" />
             </Button>
           </div>
