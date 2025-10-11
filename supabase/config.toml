@@ -1,1 +1,4 @@
 project_id = "zolyvziccfcfrjasyevl"
+
+[functions.freight-ai-agent]
+verify_jwt = true
