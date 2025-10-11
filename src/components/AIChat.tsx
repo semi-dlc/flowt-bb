@@ -6,6 +6,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bot, Send, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+// Validation schema for chat messages
+const messageSchema = z.string()
+  .trim()
+  .min(1, "Message cannot be empty")
+  .max(2000, "Message too long (max 2000 characters)");
 
 interface Message {
   role: 'user' | 'assistant';
@@ -24,18 +31,32 @@ export const AIChat = () => {
   const { toast } = useToast();
 
   const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+    if (loading) return;
 
-    const userMessage = input;
+    // Validate input
+    const validation = messageSchema.safeParse(input);
+    if (!validation.success) {
+      toast({
+        title: "Invalid Input",
+        description: validation.error.errors[0].message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const userMessage = validation.data;
     setInput("");
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
+
+    // Limit conversation history to last 10 messages to control costs
+    const recentHistory = messages.slice(-10);
 
     try {
       const { data, error } = await supabase.functions.invoke('freight-ai-agent', {
         body: {
           message: userMessage,
-          conversationHistory: messages
+          conversationHistory: recentHistory
         }
       });
 
@@ -48,7 +69,7 @@ export const AIChat = () => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to get AI response",
+        description: "Failed to get AI response. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -110,17 +131,23 @@ export const AIChat = () => {
             )}
           </div>
         </ScrollArea>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Ask about shipping or capacity..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            disabled={loading}
-          />
-          <Button onClick={sendMessage} disabled={loading}>
-            <Send className="w-4 h-4" />
-          </Button>
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Ask about shipping or capacity..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+              disabled={loading}
+              maxLength={2000}
+            />
+            <Button onClick={sendMessage} disabled={loading}>
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {input.length}/2000 characters
+          </p>
         </div>
       </CardContent>
     </Card>

@@ -6,7 +6,25 @@ import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { z } from "zod";
+
+// Validation schema
+const offerSchema = z.object({
+  origin_city: z.string().trim().min(2, "City name too short").max(100, "City name too long")
+    .regex(/^[a-zA-Z\s\-]+$/, "Invalid city name"),
+  origin_country: z.string().trim().min(2, "Country name too short").max(100, "Country name too long")
+    .regex(/^[a-zA-Z\s\-]+$/, "Invalid country name"),
+  destination_city: z.string().trim().min(2, "City name too short").max(100, "City name too long")
+    .regex(/^[a-zA-Z\s\-]+$/, "Invalid city name"),
+  destination_country: z.string().trim().min(2, "Country name too short").max(100, "Country name too long")
+    .regex(/^[a-zA-Z\s\-]+$/, "Invalid country name"),
+  departure_date: z.string().refine(d => !isNaN(Date.parse(d)), "Invalid date"),
+  available_weight_kg: z.number().positive("Weight must be positive").max(100000, "Weight too large"),
+  available_volume_m3: z.number().positive("Volume must be positive").max(1000, "Volume too large").optional(),
+  price_per_kg: z.number().positive("Price must be positive").max(10000, "Price too large").optional(),
+  vehicle_type: z.string().trim().max(50, "Vehicle type too long").optional(),
+  cargo_types: z.array(z.string()).min(1, "Select at least one cargo type").max(10, "Too many cargo types")
+});
 
 export const CreateOfferDialog = () => {
   const [open, setOpen] = useState(false);
@@ -18,23 +36,55 @@ export const CreateOfferDialog = () => {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const cargoTypes = formData.get('cargo_types')?.toString().split(',') || [];
+    const cargoTypes = formData.get('cargo_types')?.toString().split(',').map(t => t.trim()).filter(Boolean) || [];
+
+    // Validate input
+    const validation = offerSchema.safeParse({
+      origin_city: formData.get("origin_city"),
+      origin_country: formData.get("origin_country"),
+      destination_city: formData.get("destination_city"),
+      destination_country: formData.get("destination_country"),
+      departure_date: formData.get("departure_date"),
+      available_weight_kg: Number(formData.get("available_weight_kg")),
+      available_volume_m3: formData.get("available_volume_m3") ? Number(formData.get("available_volume_m3")) : undefined,
+      price_per_kg: formData.get("price_per_kg") ? Number(formData.get("price_per_kg")) : undefined,
+      vehicle_type: formData.get("vehicle_type") || undefined,
+      cargo_types: cargoTypes
+    });
+
+    if (!validation.success) {
+      toast({
+        title: "Validation Error",
+        description: validation.error.errors[0].message,
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create an offer",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
 
     const { error } = await supabase.from('shipment_offers').insert({
       user_id: user.id,
-      origin_city: formData.get('origin_city') as string,
-      origin_country: formData.get('origin_country') as string,
-      destination_city: formData.get('destination_city') as string,
-      destination_country: formData.get('destination_country') as string,
-      departure_date: formData.get('departure_date') as string,
-      available_weight_kg: Number(formData.get('available_weight_kg')),
-      available_volume_m3: Number(formData.get('available_volume_m3')) || null,
-      cargo_types: cargoTypes,
-      price_per_kg: Number(formData.get('price_per_kg')) || null,
-      vehicle_type: formData.get('vehicle_type') as string || null,
+      origin_city: validation.data.origin_city,
+      origin_country: validation.data.origin_country,
+      destination_city: validation.data.destination_city,
+      destination_country: validation.data.destination_country,
+      departure_date: validation.data.departure_date,
+      available_weight_kg: validation.data.available_weight_kg,
+      available_volume_m3: validation.data.available_volume_m3 || null,
+      cargo_types: validation.data.cargo_types,
+      price_per_kg: validation.data.price_per_kg || null,
+      vehicle_type: validation.data.vehicle_type || null,
     } as any);
 
     if (error) {

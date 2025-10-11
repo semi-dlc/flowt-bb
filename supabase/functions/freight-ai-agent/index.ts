@@ -39,12 +39,15 @@ serve(async (req) => {
     let context = '';
     
     if (isSearchingForCapacity || !isOfferingCapacity) {
-      // Search for available offers
+      // Search for available offers - using profiles_public to avoid exposing PII
       const { data: offers, error: offersError } = await supabase
         .from('shipment_offers')
         .select(`
           *,
-          profiles:user_id (company_name, email, phone)
+          profiles_public!shipment_offers_user_id_fkey (
+            company_name,
+            company_type
+          )
         `)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
@@ -54,7 +57,7 @@ serve(async (req) => {
         context += '\n\nAvailable Shipping Capacity:\n';
         offers.forEach((offer: any) => {
           context += `- From ${offer.origin_city}, ${offer.origin_country} to ${offer.destination_city}, ${offer.destination_country}\n`;
-          context += `  Company: ${offer.profiles?.company_name}\n`;
+          context += `  Company: ${offer.profiles_public?.company_name}\n`;
           context += `  Departure: ${offer.departure_date}\n`;
           context += `  Available: ${offer.available_weight_kg}kg`;
           if (offer.available_volume_m3) context += `, ${offer.available_volume_m3}m³`;
@@ -66,12 +69,15 @@ serve(async (req) => {
     }
 
     if (isOfferingCapacity || !isSearchingForCapacity) {
-      // Search for shipping requests
+      // Search for shipping requests - using profiles_public to avoid exposing PII
       const { data: requests, error: requestsError } = await supabase
         .from('shipment_requests')
         .select(`
           *,
-          profiles:user_id (company_name, email, phone)
+          profiles_public!shipment_requests_user_id_fkey (
+            company_name,
+            company_type
+          )
         `)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
@@ -81,7 +87,7 @@ serve(async (req) => {
         context += '\n\nShipping Needs:\n';
         requests.forEach((request: any) => {
           context += `- From ${request.origin_city}, ${request.origin_country} to ${request.destination_city}, ${request.destination_country}\n`;
-          context += `  Company: ${request.profiles?.company_name}\n`;
+          context += `  Company: ${request.profiles_public?.company_name}\n`;
           context += `  Needed by: ${request.needed_date}\n`;
           context += `  Weight: ${request.weight_kg}kg`;
           if (request.volume_m3) context += `, ${request.volume_m3}m³`;
@@ -150,8 +156,14 @@ Be conversational, helpful, and proactive in suggesting matches. If you find goo
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', response.status, errorText);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      // Log detailed error SERVER-SIDE ONLY
+      console.error('[INTERNAL] OpenAI API error:', {
+        status: response.status,
+        error: errorText,
+        timestamp: new Date().toISOString()
+      });
+      // Return generic error to CLIENT
+      throw new Error('AI service temporarily unavailable. Please try again.');
     }
 
     const data = await response.json();
@@ -163,10 +175,11 @@ Be conversational, helpful, and proactive in suggesting matches. If you find goo
     );
 
   } catch (error) {
-    console.error('Error in freight-ai-agent:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+    console.error('[INTERNAL] Error in freight-ai-agent function:', error);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: 'Unable to process your request. Please try again later.' 
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }

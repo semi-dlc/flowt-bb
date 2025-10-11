@@ -8,6 +8,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Truck, Package } from "lucide-react";
+import { z } from "zod";
+
+// Validation schemas
+const signInSchema = z.object({
+  email: z.string()
+    .trim()
+    .email({ message: "Invalid email address" })
+    .max(255, { message: "Email too long" }),
+  password: z.string()
+    .min(1, { message: "Password is required" })
+});
+
+const signUpSchema = z.object({
+  email: z.string()
+    .trim()
+    .email({ message: "Invalid email address" })
+    .max(255, { message: "Email too long" }),
+  password: z.string()
+    .min(8, { message: "Password must be at least 8 characters" })
+    .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+    .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+    .regex(/[0-9]/, { message: "Password must contain at least one number" }),
+  companyName: z.string()
+    .trim()
+    .min(2, { message: "Company name must be at least 2 characters" })
+    .max(100, { message: "Company name must be less than 100 characters" })
+    .regex(/^[a-zA-Z0-9\s\-&.,]+$/, { message: "Company name contains invalid characters" })
+});
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -19,11 +47,28 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate input
+    const validation = signUpSchema.safeParse({
+      email,
+      password,
+      companyName
+    });
+
+    if (!validation.success) {
+      toast({
+        title: "Validation Error",
+        description: validation.error.errors[0].message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
+      email: validation.data.email,
+      password: validation.data.password,
       options: {
         emailRedirectTo: `${window.location.origin}/`,
       },
@@ -39,7 +84,11 @@ const Auth = () => {
       // Create profile
       const { error: profileError } = await supabase
         .from("profiles")
-        .insert([{ id: data.user.id, company_name: companyName, email }]);
+        .insert([{ 
+          id: data.user.id, 
+          company_name: validation.data.companyName, 
+          email: validation.data.email 
+        }]);
 
       if (profileError) {
         toast({
@@ -61,11 +110,27 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate input
+    const validation = signInSchema.safeParse({
+      email,
+      password
+    });
+
+    if (!validation.success) {
+      toast({
+        title: "Validation Error",
+        description: validation.error.errors[0].message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: validation.data.email,
+      password: validation.data.password,
     });
 
     if (error) {
@@ -164,8 +229,11 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={8}
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Must be at least 8 characters with uppercase, lowercase, and number
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Creating account..." : "Create Account"}

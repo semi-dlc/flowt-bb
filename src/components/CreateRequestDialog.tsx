@@ -6,6 +6,26 @@ import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+import { Constants } from "@/integrations/supabase/types";
+
+// Validation schema
+const requestSchema = z.object({
+  origin_city: z.string().trim().min(2, "City name too short").max(100, "City name too long")
+    .regex(/^[a-zA-Z\s\-]+$/, "Invalid city name"),
+  origin_country: z.string().trim().min(2, "Country name too short").max(100, "Country name too long")
+    .regex(/^[a-zA-Z\s\-]+$/, "Invalid country name"),
+  destination_city: z.string().trim().min(2, "City name too short").max(100, "City name too long")
+    .regex(/^[a-zA-Z\s\-]+$/, "Invalid city name"),
+  destination_country: z.string().trim().min(2, "Country name too short").max(100, "Country name too long")
+    .regex(/^[a-zA-Z\s\-]+$/, "Invalid country name"),
+  needed_date: z.string().refine(d => !isNaN(Date.parse(d)), "Invalid date"),
+  weight_kg: z.number().positive("Weight must be positive").max(100000, "Weight too large"),
+  volume_m3: z.number().positive("Volume must be positive").max(1000, "Volume too large").optional(),
+  max_price_per_kg: z.number().positive("Price must be positive").max(10000, "Price too large").optional(),
+  cargo_type: z.string().min(1, "Cargo type is required"),
+  special_requirements: z.string().trim().max(500, "Requirements too long").optional()
+});
 
 export const CreateRequestDialog = () => {
   const [open, setOpen] = useState(false);
@@ -18,21 +38,53 @@ export const CreateRequestDialog = () => {
 
     const formData = new FormData(e.currentTarget);
 
+    // Validate input
+    const validation = requestSchema.safeParse({
+      origin_city: formData.get("origin_city"),
+      origin_country: formData.get("origin_country"),
+      destination_city: formData.get("destination_city"),
+      destination_country: formData.get("destination_country"),
+      needed_date: formData.get("needed_date"),
+      weight_kg: Number(formData.get("weight_kg")),
+      volume_m3: formData.get("volume_m3") ? Number(formData.get("volume_m3")) : undefined,
+      max_price_per_kg: formData.get("max_price_per_kg") ? Number(formData.get("max_price_per_kg")) : undefined,
+      cargo_type: formData.get("cargo_type"),
+      special_requirements: formData.get("special_requirements") || undefined
+    });
+
+    if (!validation.success) {
+      toast({
+        title: "Validation Error",
+        description: validation.error.errors[0].message,
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create a request",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
 
     const { error } = await supabase.from('shipment_requests').insert({
       user_id: user.id,
-      origin_city: formData.get('origin_city') as string,
-      origin_country: formData.get('origin_country') as string,
-      destination_city: formData.get('destination_city') as string,
-      destination_country: formData.get('destination_country') as string,
-      needed_date: formData.get('needed_date') as string,
-      weight_kg: Number(formData.get('weight_kg')),
-      volume_m3: Number(formData.get('volume_m3')) || null,
-      cargo_type: formData.get('cargo_type') as string,
-      max_price_per_kg: Number(formData.get('max_price_per_kg')) || null,
-      special_requirements: formData.get('special_requirements') as string || null,
+      origin_city: validation.data.origin_city,
+      origin_country: validation.data.origin_country,
+      destination_city: validation.data.destination_city,
+      destination_country: validation.data.destination_country,
+      needed_date: validation.data.needed_date,
+      weight_kg: validation.data.weight_kg,
+      volume_m3: validation.data.volume_m3 || null,
+      cargo_type: validation.data.cargo_type as any,
+      max_price_per_kg: validation.data.max_price_per_kg || null,
+      special_requirements: validation.data.special_requirements || null,
     } as any);
 
     if (error) {
