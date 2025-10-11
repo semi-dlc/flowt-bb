@@ -58,8 +58,11 @@ const Index = () => {
               FLOWT
             </h1>
             <div className="hidden md:block h-8 w-px bg-gradient-to-b from-transparent via-primary/30 to-transparent" />
-            <p className="hidden md:block text-sm text-muted-foreground max-w-md leading-relaxed italic">
-              FLOWT transforms empty truck space into opportunity, driving collaboration and sustainability across industrial logistics
+            <p className="hidden md:block text-xs text-muted-foreground/80 max-w-md leading-relaxed">
+              <span className="bg-gradient-to-r from-primary/80 via-purple-500/80 to-pink-500/80 bg-clip-text text-transparent font-medium">
+                FLOWT transforms empty truck space into opportunity
+              </span>
+              , driving collaboration and sustainability across industrial logistics
             </p>
           </div>
           {user ? (
