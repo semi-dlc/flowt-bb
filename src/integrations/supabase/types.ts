@@ -217,7 +217,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_public: {
+        Row: {
+          company_name: string | null
+          company_type: string | null
+          created_at: string | null
+          id: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          company_type?: string | null
+          created_at?: string | null
+          id?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          company_type?: string | null
+          created_at?: string | null
+          id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
