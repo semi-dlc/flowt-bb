@@ -43,31 +43,40 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-purple-500/5 to-pink-500/10 relative overflow-hidden">
+      {/* Animated background orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+      
+      <header className="glass sticky top-0 z-50 shadow-lg">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">FLOWT</h1>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            FLOWT
+          </h1>
           {user ? (
-            <Button variant="outline" onClick={handleSignOut}>
+            <Button variant="outline" onClick={handleSignOut} className="glass-card glass-hover">
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
             </Button>
           ) : (
-            <Button onClick={() => navigate("/auth")}>
+            <Button onClick={() => navigate("/auth")} className="glass-card glass-hover">
               Sign In / Sign Up
             </Button>
           )}
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 relative z-10">
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <Tabs defaultValue="offers" className="w-full">
+            <Tabs defaultValue="offers" className="w-full glass-card rounded-2xl p-6">
               <div className="flex justify-between items-center mb-4">
-                <TabsList>
-                  <TabsTrigger value="offers">Available Capacity</TabsTrigger>
-                  <TabsTrigger value="requests">Shipping Needs</TabsTrigger>
+                <TabsList className="glass-card">
+                  <TabsTrigger value="offers" className="data-[state=active]:glass">Available Capacity</TabsTrigger>
+                  <TabsTrigger value="requests" className="data-[state=active]:glass">Shipping Needs</TabsTrigger>
                 </TabsList>
                 {user && (
                   <div className="flex gap-2">

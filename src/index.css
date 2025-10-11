@@ -106,3 +106,17 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .glass {
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/30;
+  }
+  
+  .glass-card {
+    @apply bg-white/60 dark:bg-gray-900/60 backdrop-blur-lg border border-white/30 dark:border-gray-700/40 shadow-xl;
+  }
+  
+  .glass-hover {
+    @apply transition-all hover:bg-white/90 dark:hover:bg-gray-900/90 hover:shadow-2xl;
+  }
+}

@@ -76,7 +76,7 @@ export const RequestsList = () => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {requests.map((request) => (
-        <Card key={request.id} className="hover:shadow-lg transition-shadow">
+        <Card key={request.id} className="glass-card glass-hover rounded-2xl">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Package className="w-5 h-5 text-accent" />
@@ -97,9 +97,9 @@ export const RequestsList = () => {
               <span>{request.weight_kg}kg</span>
               {request.volume_m3 && <span>, {request.volume_m3}m³</span>}
             </div>
-            <Badge variant="secondary">{request.cargo_type}</Badge>
+            <Badge variant="secondary" className="glass-card">{request.cargo_type}</Badge>
             {request.max_price_per_kg && (
-              <div className="text-lg font-semibold text-accent">
+              <div className="text-lg font-semibold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
                 Max: €{request.max_price_per_kg}/kg
               </div>
             )}

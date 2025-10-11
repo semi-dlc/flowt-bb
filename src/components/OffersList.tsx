@@ -77,7 +77,7 @@ export const OffersList = () => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {offers.map((offer) => (
-        <Card key={offer.id} className="hover:shadow-lg transition-shadow">
+        <Card key={offer.id} className="glass-card glass-hover rounded-2xl">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Truck className="w-5 h-5 text-primary" />
@@ -100,11 +100,11 @@ export const OffersList = () => {
             </div>
             <div className="flex flex-wrap gap-2">
               {offer.cargo_types.map((type) => (
-                <Badge key={type} variant="secondary">{type}</Badge>
+                <Badge key={type} variant="secondary" className="glass-card">{type}</Badge>
               ))}
             </div>
             {offer.price_per_kg && (
-              <div className="text-lg font-semibold text-primary">
+              <div className="text-lg font-semibold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
                 €{offer.price_per_kg}/kg
               </div>
             )}

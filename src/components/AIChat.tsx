@@ -106,13 +106,13 @@ export const AIChat = () => {
         />
       )}
       
-      <Card className="h-[600px] flex flex-col bg-gradient-to-br from-background via-background to-primary/5 border-2 shadow-xl">
-        <CardHeader className="border-b bg-gradient-to-r from-primary/10 to-primary/5">
+      <Card className="h-[600px] flex flex-col glass-card rounded-2xl overflow-hidden">
+        <CardHeader className="glass border-b backdrop-blur-xl">
           <CardTitle className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/20">
+            <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/30 shadow-lg">
               <img src={flowtAgentImage} alt="FLOWT Agent" className="w-full h-full object-cover" />
             </div>
-            <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent font-bold">
               FLOWT Agent
             </span>
           </CardTitle>
@@ -131,43 +131,43 @@ export const AIChat = () => {
                 }`}
               >
                 {message.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/20 shadow-md">
+                  <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/30 shadow-lg glass">
                     <img src={flowtAgentImage} alt="FLOWT Agent" className="w-full h-full object-cover" />
                   </div>
                 )}
                 <div
-                  className={`rounded-2xl px-4 py-3 max-w-[80%] break-words shadow-md transition-all hover:shadow-lg ${
+                  className={`rounded-2xl px-4 py-3 max-w-[80%] break-words shadow-lg transition-all hover:shadow-xl ${
                     message.role === 'user'
-                      ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground'
-                      : 'bg-gradient-to-br from-muted to-muted/80 border border-border/50'
+                      ? 'bg-gradient-to-br from-primary via-purple-500 to-primary text-primary-foreground glass-card border border-white/20'
+                      : 'glass-card'
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere leading-relaxed">{message.content}</p>
                 </div>
                 {message.role === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center shrink-0 shadow-md ring-2 ring-accent/20">
-                    <User className="w-4 h-4 text-accent-foreground" />
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary via-purple-500 to-pink-500 flex items-center justify-center shrink-0 shadow-lg ring-2 ring-primary/30 glass-card">
+                    <User className="w-4 h-4 text-white" />
                   </div>
                 )}
               </div>
             ))}
             {loading && (
               <div className="flex gap-3 animate-fade-in">
-                <div className="w-8 h-8 rounded-full overflow-hidden animate-pulse ring-2 ring-primary/30 shadow-md">
+                <div className="w-8 h-8 rounded-full overflow-hidden animate-pulse ring-2 ring-primary/30 shadow-lg glass">
                   <img src={flowtAgentImage} alt="FLOWT Agent" className="w-full h-full object-cover" />
                 </div>
-                <div className="bg-gradient-to-br from-muted to-muted/80 rounded-2xl px-4 py-3 border border-border/50 shadow-md">
+                <div className="glass-card rounded-2xl px-4 py-3 shadow-lg">
                   <p className="text-sm flex items-center gap-2">
-                    <span className="inline-block w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="inline-block w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="inline-block w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <span className="inline-block w-2 h-2 bg-gradient-to-r from-primary to-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="inline-block w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="inline-block w-2 h-2 bg-gradient-to-r from-pink-500 to-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </p>
                 </div>
               </div>
             )}
           </div>
         </ScrollArea>
-        <div className="space-y-2 border-t pt-4 bg-gradient-to-r from-primary/5 to-transparent -mx-4 px-4 -mb-4 pb-4">
+        <div className="space-y-2 border-t pt-4 glass -mx-4 px-4 -mb-4 pb-4 backdrop-blur-xl">
           <div className="flex gap-2">
             <Input
               placeholder="Ask about shipping or capacity..."
@@ -176,12 +176,12 @@ export const AIChat = () => {
               onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
               disabled={loading}
               maxLength={2000}
-              className="border-2 focus-visible:ring-2 focus-visible:ring-primary/30 shadow-sm"
+              className="glass-card focus-visible:ring-2 focus-visible:ring-primary/50 shadow-lg"
             />
             <Button 
               onClick={sendMessage} 
               disabled={loading}
-              className="shadow-md hover:shadow-lg transition-all hover:scale-105"
+              className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 shadow-lg hover:shadow-xl transition-all hover:scale-105 glass-card border-white/20"
             >
               <Send className="w-4 h-4" />
             </Button>
