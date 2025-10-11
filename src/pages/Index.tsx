@@ -43,63 +43,63 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-purple-500/5 to-pink-500/10 relative overflow-hidden">
-      {/* Animated background orbs */}
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5 relative overflow-hidden">
+      {/* Premium animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-accent/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-blue-400/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
       
-      <header className="glass sticky top-0 z-50 shadow-lg">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+      <header className="glass sticky top-0 z-50 border-b border-primary/10">
+        <div className="container mx-auto px-6 py-5 flex justify-between items-center">
+          <div className="flex items-center gap-6">
+            <h1 className="text-3xl font-bold tracking-tight premium-text">
               FLOWT
             </h1>
-            <div className="hidden md:block h-8 w-px bg-gradient-to-b from-transparent via-primary/30 to-transparent" />
-            <p className="hidden md:block text-xs text-muted-foreground/80 max-w-md leading-relaxed">
-              <span className="bg-gradient-to-r from-primary/80 via-purple-500/80 to-pink-500/80 bg-clip-text text-transparent font-medium">
-                FLOWT transforms empty truck space into opportunity
+            <div className="hidden md:block h-10 w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent" />
+            <p className="hidden md:block text-sm text-muted-foreground max-w-lg font-medium">
+              Transform empty capacity into revenue.{" "}
+              <span className="premium-text font-semibold">
+                The intelligent freight marketplace.
               </span>
-              , driving collaboration and sustainability across industrial logistics
             </p>
           </div>
           {user ? (
-            <Button variant="outline" onClick={handleSignOut} className="glass-card glass-hover">
+            <Button variant="outline" onClick={handleSignOut} className="glass-hover border-primary/20 hover:border-primary/40 font-medium">
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
             </Button>
           ) : (
-            <Button onClick={() => navigate("/auth")} className="glass-card glass-hover">
+            <Button onClick={() => navigate("/auth")} className="premium-gradient text-white font-semibold shadow-lg hover:shadow-xl transition-all">
               Sign In / Sign Up
             </Button>
           )}
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 relative z-10">
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <Tabs defaultValue="offers" className="w-full glass-card rounded-2xl p-6">
-              <div className="flex justify-between items-center mb-4">
-                <TabsList className="glass-card">
-                  <TabsTrigger value="offers" className="data-[state=active]:glass">Available Capacity</TabsTrigger>
-                  <TabsTrigger value="requests" className="data-[state=active]:glass">Shipping Needs</TabsTrigger>
+      <main className="container mx-auto px-6 py-12 relative z-10">
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <Tabs defaultValue="offers" className="w-full glass-card rounded-3xl p-8 shadow-2xl">
+              <div className="flex justify-between items-center mb-8">
+                <TabsList className="glass-card p-1.5">
+                  <TabsTrigger value="offers" className="data-[state=active]:premium-gradient data-[state=active]:text-white font-semibold px-6 py-2.5 rounded-lg transition-all">Available Capacity</TabsTrigger>
+                  <TabsTrigger value="requests" className="data-[state=active]:premium-gradient data-[state=active]:text-white font-semibold px-6 py-2.5 rounded-lg transition-all">Shipping Needs</TabsTrigger>
                 </TabsList>
                 {user && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <CreateOfferDialog />
                     <CreateRequestDialog />
                   </div>
                 )}
               </div>
 
-              <TabsContent value="offers" className="space-y-4">
+              <TabsContent value="offers" className="space-y-6">
                 <OffersList />
               </TabsContent>
 
-              <TabsContent value="requests" className="space-y-4">
+              <TabsContent value="requests" className="space-y-6">
                 <RequestsList />
               </TabsContent>
             </Tabs>
