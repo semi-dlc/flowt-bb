@@ -17,7 +17,7 @@ serve(async (req) => {
       message, 
       conversationHistory, 
       attachments,
-      model = 'gpt-4o-mini',
+      model = 'gpt-5-2025-08-07',
       temperature = 0.7,
       maxTokens = 1500,
       systemPrompt
