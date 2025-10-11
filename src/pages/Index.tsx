@@ -88,19 +88,7 @@ const Index = () => {
           </div>
 
           <div className="lg:col-span-1">
-            {user ? (
-              <AIChat />
-            ) : (
-              <div className="bg-card p-6 rounded-lg border">
-                <h3 className="text-lg font-semibold mb-2">AI Assistant</h3>
-                <p className="text-muted-foreground mb-4">
-                  Sign in to use our AI assistant to find matching offers and requests.
-                </p>
-                <Button onClick={() => navigate("/auth")} className="w-full">
-                  Sign In to Chat
-                </Button>
-              </div>
-            )}
+            <AIChat />
           </div>
         </div>
       </main>
