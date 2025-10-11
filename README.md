@@ -1,73 +1,82 @@
-# Welcome to your Lovable project
+# FLOWT – AI-Powered Freight Ridesharing
 
-## Project info
+FLOWT matches unused trucking capacity with shippers that need space. The platform combines a Supabase-backed marketplace for offers and requests with an AI co-pilot that understands live supply and demand, helping logistics teams collaborate, fill empty miles, and ship more sustainably.
 
-**URL**: https://lovable.dev/projects/f09589f0-2401-4a08-9718-1c74db56b494
+## Product Highlights
+- B2B freight marketplace where carriers publish open capacity and shippers post their loads.
+- Role-aware Supabase Auth with profile onboarding for logistics companies.
+- Rich offer/request management with validation for weights, routes, pricing, and cargo types.
+- Real-time AI assistant (`supabase/functions/freight-ai-agent`) that answers route questions and recommends matches using database context.
+- Developer-only controls for tuning AI models, temperature, prompts, and token budgets.
 
-## How can I edit this code?
+## Tech Stack
+- React 18 + Vite + TypeScript for the SPA.
+- Tailwind CSS + shadcn/ui for the glassmorphism UI.
+- Supabase (database, Auth, Row Level Security policies, Edge Functions).
+- Deno Edge Function calling the Lovable AI gateway for freight-specific reasoning.
 
-There are several ways of editing your application.
+## Prerequisites
+- Node.js 20+ and npm.
+- Supabase account & CLI (to run the database locally or manage migrations).
+- Lovable AI gateway key (used by the freight AI agent).
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/f09589f0-2401-4a08-9718-1c74db56b494) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## Getting Started
+```bash
+git clone <repo>
+cd flowt-bb
+npm install
 ```
 
-**Edit a file directly in GitHub**
+1. Create a Supabase project (or run `supabase start` locally).
+2. Apply database schema:
+   ```bash
+   supabase db push
+   ```
+   This seeds enums (`shipment_status`, `cargo_type`), tables (`profiles`, `shipment_offers`, `shipment_requests`, `bookings`), indexes, and RLS policies.
+3. Copy your environment variables into `.env` (or `.env.local`):
+   ```bash
+   VITE_SUPABASE_URL=<your-supabase-url>
+   VITE_SUPABASE_PUBLISHABLE_KEY=<your-anon-or-public-key>
+   ```
+4. Start the web app:
+   ```bash
+   npm run dev
+   ```
+   Visit the printed URL, create an account, and complete your company profile before posting offers or requests.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## AI Agent Configuration
+The AI chat panel calls the Supabase Edge Function `freight-ai-agent`. Configure its secrets so it can reach Supabase and the Lovable AI gateway:
 
-**Use GitHub Codespaces**
+```bash
+supabase secrets set --project-ref <ref> \
+  LOVABLE_API_KEY=<lovable-api-key> \
+  SUPABASE_URL=<your-supabase-url> \
+  SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Deploy the function with:
+```bash
+supabase functions deploy freight-ai-agent
+```
 
-## What technologies are used for this project?
+The assistant automatically pulls the latest `shipment_offers`, `shipment_requests`, and `bookings` to provide contextual recommendations.
 
-This project is built with:
+## Project Structure
+```
+flowt-bb/
+├─ src/pages                # Auth, dashboard, 404 routes
+├─ src/components           # Offer/request lists, dialogs, AI chat UI
+├─ src/integrations         # Supabase client & generated types
+├─ supabase/migrations      # SQL schema, RLS policies, indexes
+└─ supabase/functions       # Deno edge functions (freight AI agent)
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Useful Scripts
+- `npm run dev` – start the local dev server.
+- `npm run build` – production build.
+- `npm run lint` – run ESLint checks.
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/f09589f0-2401-4a08-9718-1c74db56b494) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Next Steps
+- Extend booking workflows so matched offers/requests transition through `matched → in_transit → completed`.
+- Add analytics dashboards to surface fill rates and revenue impact.
+- Integrate notifications (email/SMS) for new matches or AI recommendations.
