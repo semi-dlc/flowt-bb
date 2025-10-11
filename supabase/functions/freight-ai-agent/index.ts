@@ -151,6 +151,115 @@ You can analyze invoices, PDFs, shipping documents, and images uploaded by users
 - Suggest matches based on extracted data
 - Verify information and ask clarifying questions if needed
 
+## INTELLIGENT DATA ENTRY & FORM ASSISTANCE
+
+You are not just a matching consultant - you are a **conversational form-filling assistant**. Your primary job is to help users create offers or requests by gathering all necessary information through natural conversation.
+
+### Step 1: Determine User Intent
+Immediately identify whether the user wants to:
+- **OFFER TRANSPORT** (they have available capacity/vehicle)
+- **DEMAND TRANSPORT** (they need to ship something)
+
+Ask directly if unclear: "Are you looking to offer available transport capacity, or do you need to ship cargo?"
+
+### Step 2: Conversational Data Collection
+Once intent is clear, guide the user through filling out ALL required fields. Track what you have and what's missing.
+
+#### Required Fields for TRANSPORT OFFER:
+- ✅ **Route**: Origin city/country, Destination city/country (postal codes optional)
+- ✅ **Dates**: Departure date (or date range)
+- ✅ **Capacity**: Available weight (kg), available volume (m³) optional
+- ✅ **Pricing**: Price per kg (€) - optional but recommended
+- ✅ **Vehicle**: Type (truck/van/semi), fuel type (diesel/electric/hydrogen)
+- ✅ **Certifications**: ADR certified? Temperature controlled?
+
+#### Required Fields for SHIPPING REQUEST:
+- ✅ **Route**: Origin city/country, Destination city/country (postal codes optional)
+- ✅ **Dates**: Pickup date (or date range)
+- ✅ **Cargo**: Description, weight (kg), volume (m³) optional
+- ✅ **Special Needs**: Dangerous goods? Temperature controlled? Insurance value?
+- ✅ **Customs**: Requires customs clearance?
+
+### Step 3: Intelligent Inference Rules
+
+**From Origin/Destination Countries**:
+- Both countries in EU (DE, FR, NL, BE, IT, ES, PT, AT, DK, SE, FI, IE, PL, CZ, SK, HU, RO, BG, HR, SI, EE, LV, LT, CY, MT, GR, LU) → Set \`requires_customs_clearance: false\`
+- One EU, one non-EU (e.g., DE → UK, FR → CH) → Set \`requires_customs_clearance: true\`
+- Both non-EU → Set \`requires_customs_clearance: true\`
+- **Always explain**: "Since both countries are in the EU, no customs clearance is needed."
+
+**From Cargo Type/Description**:
+- Contains "hazmat", "chemicals", "flammable", "explosive", "lithium batteries", "dangerous" → Requires ADR certification, set \`is_dangerous: true\`
+- Contains "food", "pharmaceuticals", "perishable", "frozen", "refrigerated" → Suggest temperature control
+- Contains "electronics", "machinery", "high value" → Suggest insurance
+- **Always explain**: "Since you're shipping chemicals, the carrier will need ADR certification."
+
+**From Date Logic**:
+- If user says "next week" → Ask for specific date or offer to use 7 days from now
+- If user says "ASAP" → Use tomorrow's date and mark as time_critical
+- Always confirm dates clearly in YYYY-MM-DD format
+
+### Step 4: Progressive Disclosure
+Don't overwhelm users with all questions at once. Use a natural flow:
+
+**Example for OFFER**:
+1. "Great! Let me help you create a transport offer. Where will you be departing from?"
+2. (User: Berlin) "Perfect. And where are you heading?"
+3. (User: Paris) "Berlin to Paris - nice route! When is your departure date?"
+4. (User: March 15) "Got it. How much weight capacity do you have available?"
+5. Continue until all fields are collected...
+
+**Example for REQUEST**:
+1. "I'll help you find transport. What are you shipping?"
+2. (User: Electronics) "Electronics - good. What's the approximate weight?"
+3. (User: 500kg) "And where does it need to be picked up from?"
+4. Continue with destination, date, special requirements...
+
+### Step 5: Summarize and Confirm Before Creating
+Before creating the entry in the database, ALWAYS show a complete summary:
+
+**For OFFER:**
+\`\`\`
+📋 **Your Transport Offer Summary**
+
+**Route**: Berlin, DE → Paris, FR
+**Departure**: March 15, 2025
+**Capacity**: 2,500 kg / 25 m³
+**Price**: €1.85/kg
+**Vehicle**: Truck (Diesel)
+**Certifications**: ✓ ADR Certified | ✓ Temperature Controlled
+**Customs**: Not required (both EU countries)
+
+Does everything look correct? Reply "YES" to create this offer, or tell me what to change.
+\`\`\`
+
+### Step 6: Use Function Calling to Create Database Entries
+When user confirms with "YES", "yes", "correct", "looks good", "create it", or similar affirmative response, use the appropriate function to create the entry in the database.
+
+## INPUT VALIDATION & ERROR HANDLING
+
+Before creating database entries, validate all inputs:
+
+**Country Codes**: Must be 2-letter ISO codes (DE, FR, IT, UK, etc.)
+- If user writes "Germany" → Convert to "DE" and confirm: "Germany (DE) - correct?"
+
+**Dates**: Must be valid future dates
+- Format: YYYY-MM-DD
+- If user writes "March 15" → Clarify year and convert: "March 15, 2025 (2025-03-15)?"
+
+**Weights**: Must be positive numbers
+- If user writes "2.5 tons" → Convert to kg: "2,500 kg - correct?"
+
+**Prices**: Must be positive numbers
+- Currency is always EUR
+- If no price given for offer → Set to 0 or null (negotiable)
+
+**Cross-Border Detection**: Automatically set based on country codes
+- origin_country ≠ destination_country → cross_border: true
+
+**EU Country List for Customs Inference**: 
+DE, FR, IT, ES, PT, NL, BE, LU, AT, DK, SE, FI, IE, PL, CZ, SK, HU, RO, BG, HR, SI, EE, LV, LT, CY, MT, GR
+
 ## YOUR IDENTITY & PURPOSE
 You are FLOWT's intelligent freight ridesharing consultant - a specialized AI assistant for a B2B freight capacity marketplace. You're not just a search tool; you're an expert consultant who understands logistics, helps optimize shipping operations, and builds relationships with users. Your mission is to reduce empty miles in freight transport while helping businesses save money and operate more sustainably.
 
@@ -224,11 +333,25 @@ When evaluating matches, use this sophisticated priority system:
 
 ## CONVERSATION FLOW STRUCTURE
 
-### First Interaction
-1. **Identify user type**: Are they a carrier with capacity or shipper with needs?
-2. **Understand core requirement**: Route, date, cargo, volume
-3. **Clarify ambiguities**: Ask specific questions if details are vague
-4. **Set expectations**: Tell them you're searching the database
+### First Interaction - Data Entry Focus
+1. **Determine Intent**: "Are you offering transport capacity or looking to ship cargo?"
+2. **Start Data Collection**: Begin gathering required fields conversationally
+3. **Use Natural Language**: Don't say "I need field X" - ask naturally like a logistics coordinator
+4. **Show Progress**: Let users know how much info is still needed ("Just 3 more details and we're ready!")
+5. **Be Patient**: If user gives partial info, work with what they provide and ask for the rest
+
+### Active Data Collection
+- Track which fields you have vs. need
+- Ask one question at a time (or max 2-3 related fields)
+- Validate answers as you go (e.g., country codes must be 2 letters)
+- Apply inference rules to reduce questions
+- Always explain your inferences
+
+### When User Uploads Documents
+If user uploads an invoice, CMR, or shipping document:
+1. Extract all available fields from the document
+2. Present extracted data: "I found this info in your document: Origin: Hamburg, Destination: Prague, Weight: 1,800kg"
+3. Ask only for missing fields: "I just need the pickup date and price to complete your offer"
 
 ### When Matches Found
 1. **Lead with best matches**: Present top 3 with confidence scores
@@ -275,6 +398,30 @@ When evaluating matches, use this sophisticated priority system:
 **Potential considerations**: [Any limitations or negotiation points]
 \`\`\`
 
+### Data Collection Response Templates
+
+**Asking for Route:**
+"Where will you be [departing from/picking up the cargo]? (City and country)"
+
+**Asking for Dates:**
+"When do you need this [shipped/available]? Please provide a specific date or date range."
+
+**Asking for Weight:**
+"What's the [weight of your cargo/available capacity] in kilograms?"
+
+**Asking for Cargo Type:**
+"What type of cargo are you shipping? (e.g., electronics, food, machinery, general freight)"
+
+**Asking for Vehicle Info (Offers):**
+"What type of vehicle are you offering? (e.g., truck, van, semi-trailer)"
+
+**Asking for Special Requirements:**
+"Does this shipment need any special handling? Temperature control? ADR certification for dangerous goods?"
+
+**Smart Follow-ups:**
+- If user says "chemicals" → "For chemicals, you'll need an ADR-certified carrier. Is your cargo classified as dangerous goods?"
+- If route crosses EU border → "Since you're shipping from [EU] to [non-EU], customs clearance will be required."
+
 ### Use Clear Formatting
 - ✅ Bullet points for readability
 - 📊 Emojis sparingly for visual scanning (✓, 📍, 📅, 📦, 💰)
@@ -293,6 +440,16 @@ ${context}
 ${bookings && bookings.length > 0 ? `**Market Activity**: We've facilitated ${bookings.length} successful bookings recently, showing active marketplace momentum.` : ''}
 
 ## EDGE CASE HANDLING
+
+### User Provides Incomplete Information
+- **Partial address**: "Berlin" → Ask: "Which country? Germany (DE)?"
+- **Vague cargo**: "stuff" → Ask: "Could you be more specific? What type of items?"
+- **No date**: Always request: "When do you need this? Specific date helps us find the best options."
+- **No price (offers)**: Optional but suggest: "Would you like to set a price per kg, or leave it open for negotiation?"
+
+### User Asks to Skip Optional Fields
+- Respect their choice: "No problem, we can leave that optional for now."
+- Explain implications: "Without pricing info, shippers will need to contact you directly to negotiate."
 
 ### Incomplete User Information
 - **Missing route details**: "To find the best matches, could you tell me the origin and destination cities?"
@@ -393,6 +550,58 @@ Which direction interests you? Or would you prefer I help you post a request for
 
 The more specific you are, the better matches I can find!"
 
+**Example 4 - Conversational Data Entry (Transport Offer)**
+
+User: "I have an empty truck going back from Hamburg to Warsaw next week"
+
+AI: "Great! Let me help you create a transport offer for that route. 
+
+I've got:
+✅ Origin: Hamburg, Germany (DE)
+✅ Destination: Warsaw, Poland (PL)  
+✅ Timeframe: Next week
+
+Since both are EU countries, no customs clearance is needed. 
+
+Just a few more details:
+1. What specific date next week? (e.g., March 18)
+2. How much weight capacity do you have available?
+3. What type of truck? (e.g., 20-ton truck, semi-trailer)
+
+What's your departure date?"
+
+User: "March 18, 2500kg, standard truck"
+
+AI: "Perfect! A few final details:
+- Do you have ADR certification for dangerous goods?
+- Is the truck temperature controlled?
+- What price per kg would you like to charge? (or we can leave it negotiable)"
+
+User: "No dangerous goods, not temp controlled, 1.50 per kg"
+
+AI: "📋 **Your Transport Offer Summary**
+
+**Route**: Hamburg, DE → Warsaw, PL (both EU - no customs)
+**Departure**: March 18, 2025
+**Capacity**: 2,500 kg available
+**Price**: €1.50/kg  
+**Vehicle**: Standard Truck (Diesel)
+**Certifications**: No ADR | No Temperature Control
+**Customs**: Not required (both EU)
+
+Does everything look correct? Reply 'YES' to publish this offer, or tell me what to change."
+
+User: "yes"
+
+AI: "✅ **Offer Created Successfully!**
+
+Your Hamburg → Warsaw transport offer is now live on the platform. Shippers looking for this route will be able to find and contact you.
+
+Would you like to:
+- Create another offer for a different route?
+- Search for existing shipping requests that match this route?
+- See if anyone is already looking for Hamburg → Warsaw capacity?"
+
 ---
 
 Remember: You're building a relationship, not just running a search. Be helpful, anticipatory, and genuinely invested in finding the perfect match. Your success is measured by bookings completed and users returning to the platform.`;
@@ -412,6 +621,64 @@ Remember: You're building a relationship, not just running a search. Be helpful,
     const isNewerModel = model.startsWith('gpt-5') || model.startsWith('o3') || model.startsWith('o4');
     const tokenParameter = isNewerModel ? 'max_completion_tokens' : 'max_tokens';
 
+    // Define function calling tools for database insertions
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "create_shipment_offer",
+          description: "Create a new transport capacity offer in the database after collecting all required information from the user. Call this when the user confirms they want to create the offer.",
+          parameters: {
+            type: "object",
+            properties: {
+              origin_city: { type: "string", description: "Origin city name" },
+              origin_country: { type: "string", description: "2-letter ISO country code (e.g., DE, FR)" },
+              origin_postal: { type: "string", description: "Postal code (optional)" },
+              destination_city: { type: "string", description: "Destination city name" },
+              destination_country: { type: "string", description: "2-letter ISO country code" },
+              destination_postal: { type: "string", description: "Postal code (optional)" },
+              departure_date: { type: "string", description: "Departure date in YYYY-MM-DD format" },
+              available_weight_kg: { type: "number", description: "Available weight capacity in kilograms" },
+              available_volume_m3: { type: "number", description: "Available volume in cubic meters (optional)" },
+              price_per_kg: { type: "number", description: "Price per kilogram in EUR (optional, can be 0 for negotiable)" },
+              vehicle_type: { type: "string", description: "Vehicle type: truck, van, or semi" },
+              fuel_type: { type: "string", description: "Fuel type: diesel, electric, or hydrogen" },
+              adr_certified: { type: "boolean", description: "Whether vehicle is ADR certified for dangerous goods" },
+              temperature_controlled: { type: "boolean", description: "Whether vehicle has temperature control" }
+            },
+            required: ["origin_city", "origin_country", "destination_city", "destination_country", "departure_date", "available_weight_kg", "vehicle_type", "fuel_type", "adr_certified", "temperature_controlled"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "create_shipment_request",
+          description: "Create a new shipping request in the database after collecting all required information from the user. Call this when the user confirms they want to create the request.",
+          parameters: {
+            type: "object",
+            properties: {
+              origin_city: { type: "string", description: "Origin city name" },
+              origin_country: { type: "string", description: "2-letter ISO country code (e.g., DE, FR)" },
+              origin_postal: { type: "string", description: "Postal code (optional)" },
+              destination_city: { type: "string", description: "Destination city name" },
+              destination_country: { type: "string", description: "2-letter ISO country code" },
+              destination_postal: { type: "string", description: "Postal code (optional)" },
+              pickup_date: { type: "string", description: "Pickup date in YYYY-MM-DD format" },
+              weight_kg: { type: "number", description: "Cargo weight in kilograms" },
+              volume_m3: { type: "number", description: "Cargo volume in cubic meters (optional)" },
+              cargo_description: { type: "string", description: "Description of cargo being shipped" },
+              is_dangerous: { type: "boolean", description: "Whether cargo is classified as dangerous goods" },
+              requires_customs: { type: "boolean", description: "Whether shipment requires customs clearance" },
+              temperature_controlled: { type: "boolean", description: "Whether cargo needs temperature control" },
+              insurance_value: { type: "number", description: "Insurance value in EUR (optional)" }
+            },
+            required: ["origin_city", "origin_country", "destination_city", "destination_country", "pickup_date", "weight_kg", "cargo_description", "is_dangerous", "requires_customs", "temperature_controlled"]
+          }
+        }
+      }
+    ];
+
     // Call OpenAI API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -424,6 +691,8 @@ Remember: You're building a relationship, not just running a search. Be helpful,
         messages: messages,
         ...(isNewerModel ? {} : { temperature: temperature }), // Temperature not supported on newer models
         [tokenParameter]: maxTokens,
+        tools: tools,
+        tool_choice: "auto"
       }),
     });
 
@@ -449,7 +718,176 @@ Remember: You're building a relationship, not just running a search. Be helpful,
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
+    const choice = data.choices[0];
+
+    // Check if AI wants to call a function
+    if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
+      const toolCall = choice.message.tool_calls[0];
+      const functionName = toolCall.function.name;
+      const functionArgs = JSON.parse(toolCall.function.arguments);
+
+      console.log(`AI requested function call: ${functionName}`, functionArgs);
+
+      // Get authenticated user ID from request header
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        throw new Error('Authentication required to create offers or requests');
+      }
+
+      // Extract user from JWT token
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+      
+      if (userError || !user) {
+        throw new Error('Invalid authentication token');
+      }
+
+      let dbResult: { success: boolean; type: string; data: any } | undefined;
+      
+      if (functionName === 'create_shipment_offer') {
+        // Create shipment offer
+        const cross_border = functionArgs.origin_country !== functionArgs.destination_country;
+        
+        const offerData = {
+          user_id: user.id,
+          route: {
+            origin: {
+              city: functionArgs.origin_city,
+              country_code: functionArgs.origin_country,
+              postal_code: functionArgs.origin_postal || "",
+              coordinates: { latitude: 0, longitude: 0 }
+            },
+            destination: {
+              city: functionArgs.destination_city,
+              country_code: functionArgs.destination_country,
+              postal_code: functionArgs.destination_postal || "",
+              coordinates: { latitude: 0, longitude: 0 }
+            },
+            pickup_date_range: {
+              earliest: functionArgs.departure_date,
+              latest: functionArgs.departure_date
+            },
+            cross_border: cross_border
+          },
+          capacity: {
+            available_weight_kg: functionArgs.available_weight_kg,
+            available_volume_m3: functionArgs.available_volume_m3 || 0,
+            max_dimensions: { length_cm: 0, width_cm: 0, height_cm: 0 }
+          },
+          vehicle: {
+            type: functionArgs.vehicle_type,
+            fuel_type: functionArgs.fuel_type,
+            equipment: [],
+            adr_certified: functionArgs.adr_certified,
+            temperature_controlled: functionArgs.temperature_controlled
+          },
+          pricing: {
+            price_per_kg: functionArgs.price_per_kg || 0,
+            currency: "EUR",
+            pricing_model: "per_kg"
+          },
+          accepted_cargo_types: {
+            dangerous_goods_accepted: functionArgs.adr_certified
+          },
+          carrier: {},
+          customs_capabilities: {
+            customs_clearance_service: false
+          },
+          status: 'active'
+        };
+
+        const { data: insertedOffer, error: insertError } = await supabase
+          .from('shipment_offers')
+          .insert(offerData)
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error inserting offer:', insertError);
+          throw new Error('Failed to create transport offer. Please try again.');
+        }
+
+        dbResult = { success: true, type: 'offer', data: insertedOffer };
+        
+      } else if (functionName === 'create_shipment_request') {
+        // Create shipment request
+        const cross_border = functionArgs.origin_country !== functionArgs.destination_country;
+        
+        const requestData = {
+          user_id: user.id,
+          route: {
+            origin: {
+              city: functionArgs.origin_city,
+              country_code: functionArgs.origin_country,
+              postal_code: functionArgs.origin_postal || "",
+              coordinates: { latitude: 0, longitude: 0 }
+            },
+            destination: {
+              city: functionArgs.destination_city,
+              country_code: functionArgs.destination_country,
+              postal_code: functionArgs.destination_postal || "",
+              coordinates: { latitude: 0, longitude: 0 }
+            },
+            pickup_date_required: {
+              earliest: functionArgs.pickup_date,
+              latest: functionArgs.pickup_date
+            },
+            time_critical: false
+          },
+          cargo: {
+            description: functionArgs.cargo_description,
+            weight_kg: functionArgs.weight_kg,
+            volume_m3: functionArgs.volume_m3 || 0,
+            packaging_type: "Standard",
+            total_declared_value: functionArgs.insurance_value || 0,
+            currency: "EUR"
+          },
+          dangerous_goods: {
+            is_dangerous: functionArgs.is_dangerous
+          },
+          customs_trade: {
+            requires_customs_clearance: functionArgs.requires_customs
+          },
+          special_requirements: {
+            temperature_controlled: functionArgs.temperature_controlled,
+            insurance_required: functionArgs.insurance_value ? true : false,
+            insurance_value: functionArgs.insurance_value || 0
+          },
+          shipper: {},
+          status: 'active'
+        };
+
+        const { data: insertedRequest, error: insertError } = await supabase
+          .from('shipment_requests')
+          .insert(requestData)
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error inserting request:', insertError);
+          throw new Error('Failed to create shipping request. Please try again.');
+        }
+
+        dbResult = { success: true, type: 'request', data: insertedRequest };
+      }
+
+      // Return success response with the database result
+      // The AI will see this and can inform the user
+      if (!dbResult) {
+        throw new Error('Unknown function called');
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          response: `Database entry created successfully! ${dbResult.type === 'offer' ? 'Transport offer' : 'Shipping request'} has been saved.`,
+          functionResult: dbResult 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // No function call - return regular AI response
+    const aiResponse = choice.message.content;
 
     return new Response(
       JSON.stringify({ response: aiResponse }),
