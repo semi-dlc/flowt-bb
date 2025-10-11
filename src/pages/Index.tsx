@@ -53,9 +53,15 @@ const Index = () => {
       
       <header className="glass sticky top-0 z-50 shadow-lg">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            FLOWT
-          </h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              FLOWT
+            </h1>
+            <div className="hidden md:block h-8 w-px bg-gradient-to-b from-transparent via-primary/30 to-transparent" />
+            <p className="hidden md:block text-sm text-muted-foreground max-w-md leading-relaxed italic">
+              FLOWT transforms empty truck space into opportunity, driving collaboration and sustainability across industrial logistics
+            </p>
+          </div>
           {user ? (
             <Button variant="outline" onClick={handleSignOut} className="glass-card glass-hover">
               <LogOut className="w-4 h-4 mr-2" />
