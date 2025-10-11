@@ -72,17 +72,17 @@ const Index = () => {
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <Tabs defaultValue="offers" className="w-full">
-              <div className="flex justify-between items-center mb-6">
+              {user && (
+                <div className="flex justify-center gap-2 mb-4">
+                  <CreateOfferDialog />
+                  <CreateRequestDialog />
+                </div>
+              )}
+              <div className="flex justify-center mb-6">
                 <TabsList className="bg-muted">
                   <TabsTrigger value="offers" className="text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Available Capacity</TabsTrigger>
                   <TabsTrigger value="requests" className="text-sm font-medium data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Shipping Needs</TabsTrigger>
                 </TabsList>
-                {user && (
-                  <div className="flex gap-2">
-                    <CreateOfferDialog />
-                    <CreateRequestDialog />
-                  </div>
-                )}
               </div>
 
               <TabsContent value="offers" className="mt-0">
