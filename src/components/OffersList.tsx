@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Offer {
   id: string;
+  user_id: string;
   origin_city: string;
   origin_country: string;
   destination_city: string;
@@ -17,9 +18,7 @@ interface Offer {
   cargo_types: string[];
   price_per_kg: number | null;
   vehicle_type: string | null;
-  profiles: {
-    company_name: string;
-  };
+  company_name?: string;
 }
 
 export const OffersList = () => {
@@ -32,24 +31,42 @@ export const OffersList = () => {
   }, []);
 
   const fetchOffers = async () => {
-    const { data, error } = await supabase
+    // Fetch shipment offers
+    const { data: offersData, error: offersError } = await supabase
       .from('shipment_offers')
-      .select(`
-        *,
-        profiles!shipment_offers_user_id_fkey (company_name)
-      `)
+      .select('*')
       .eq('status', 'active')
       .order('created_at', { ascending: false });
 
-    if (error) {
+    if (offersError) {
       toast({
         title: "Error",
         description: "Failed to load offers",
         variant: "destructive",
       });
-    } else {
-      setOffers(data as any || []);
+      setLoading(false);
+      return;
     }
+
+    // Fetch company names from profiles_public
+    if (offersData && offersData.length > 0) {
+      const userIds = [...new Set(offersData.map(offer => offer.user_id))];
+      const { data: profilesData } = await supabase
+        .from('profiles_public')
+        .select('id, company_name')
+        .in('id', userIds);
+
+      // Merge company names with offers
+      const offersWithCompanies = offersData.map(offer => ({
+        ...offer,
+        company_name: profilesData?.find(p => p.id === offer.user_id)?.company_name || 'Unknown Company'
+      }));
+
+      setOffers(offersWithCompanies);
+    } else {
+      setOffers([]);
+    }
+    
     setLoading(false);
   };
 
@@ -64,7 +81,7 @@ export const OffersList = () => {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Truck className="w-5 h-5 text-primary" />
-              {offer.profiles?.company_name || 'Unknown Company'}
+              {offer.company_name}
             </CardTitle>
             <CardDescription className="flex items-center gap-1">
               <MapPin className="w-4 h-4" />

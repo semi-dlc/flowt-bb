@@ -21,23 +21,17 @@ const Index = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
-      if (!session) {
-        navigate("/auth");
-      }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
-        if (!session) {
-          navigate("/auth");
-        }
       }
     );
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -48,19 +42,21 @@ const Index = () => {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
-  if (!user) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-primary">FreightShare</h1>
-          <Button variant="outline" onClick={handleSignOut}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
+          {user ? (
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          ) : (
+            <Button onClick={() => navigate("/auth")}>
+              Sign In / Sign Up
+            </Button>
+          )}
         </div>
       </header>
 
@@ -73,10 +69,12 @@ const Index = () => {
                   <TabsTrigger value="offers">Available Capacity</TabsTrigger>
                   <TabsTrigger value="requests">Shipping Needs</TabsTrigger>
                 </TabsList>
-                <div className="flex gap-2">
-                  <CreateOfferDialog />
-                  <CreateRequestDialog />
-                </div>
+                {user && (
+                  <div className="flex gap-2">
+                    <CreateOfferDialog />
+                    <CreateRequestDialog />
+                  </div>
+                )}
               </div>
 
               <TabsContent value="offers" className="space-y-4">
@@ -90,7 +88,19 @@ const Index = () => {
           </div>
 
           <div className="lg:col-span-1">
-            <AIChat />
+            {user ? (
+              <AIChat />
+            ) : (
+              <div className="bg-card p-6 rounded-lg border">
+                <h3 className="text-lg font-semibold mb-2">AI Assistant</h3>
+                <p className="text-muted-foreground mb-4">
+                  Sign in to use our AI assistant to find matching offers and requests.
+                </p>
+                <Button onClick={() => navigate("/auth")} className="w-full">
+                  Sign In to Chat
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </main>

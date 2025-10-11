@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Request {
   id: string;
+  user_id: string;
   origin_city: string;
   origin_country: string;
   destination_city: string;
@@ -16,9 +17,7 @@ interface Request {
   volume_m3: number | null;
   cargo_type: string;
   max_price_per_kg: number | null;
-  profiles: {
-    company_name: string;
-  };
+  company_name?: string;
 }
 
 export const RequestsList = () => {
@@ -31,24 +30,42 @@ export const RequestsList = () => {
   }, []);
 
   const fetchRequests = async () => {
-    const { data, error } = await supabase
+    // Fetch shipment requests
+    const { data: requestsData, error: requestsError } = await supabase
       .from('shipment_requests')
-      .select(`
-        *,
-        profiles!shipment_requests_user_id_fkey (company_name)
-      `)
+      .select('*')
       .eq('status', 'active')
       .order('created_at', { ascending: false });
 
-    if (error) {
+    if (requestsError) {
       toast({
         title: "Error",
         description: "Failed to load requests",
         variant: "destructive",
       });
-    } else {
-      setRequests(data as any || []);
+      setLoading(false);
+      return;
     }
+
+    // Fetch company names from profiles_public
+    if (requestsData && requestsData.length > 0) {
+      const userIds = [...new Set(requestsData.map(request => request.user_id))];
+      const { data: profilesData } = await supabase
+        .from('profiles_public')
+        .select('id, company_name')
+        .in('id', userIds);
+
+      // Merge company names with requests
+      const requestsWithCompanies = requestsData.map(request => ({
+        ...request,
+        company_name: profilesData?.find(p => p.id === request.user_id)?.company_name || 'Unknown Company'
+      }));
+
+      setRequests(requestsWithCompanies);
+    } else {
+      setRequests([]);
+    }
+    
     setLoading(false);
   };
 
@@ -63,7 +80,7 @@ export const RequestsList = () => {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Package className="w-5 h-5 text-accent" />
-              {request.profiles?.company_name || 'Unknown Company'}
+              {request.company_name}
             </CardTitle>
             <CardDescription className="flex items-center gap-1">
               <MapPin className="w-4 h-4" />
