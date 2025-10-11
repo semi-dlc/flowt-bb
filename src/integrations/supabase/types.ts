@@ -103,115 +103,100 @@ export type Database = {
       }
       shipment_offers: {
         Row: {
-          arrival_date: string | null
-          available_volume_m3: number | null
-          available_weight_kg: number
-          cargo_types: Database["public"]["Enums"]["cargo_type"][]
+          accepted_cargo_types: Json | null
+          capacity: Json
+          carrier: Json
           created_at: string
-          departure_date: string
-          destination_city: string
-          destination_country: string
+          customs_capabilities: Json | null
           id: string
-          notes: string | null
-          origin_city: string
-          origin_country: string
-          price_per_kg: number | null
+          offer_id: string | null
+          pricing: Json
+          route: Json
           status: Database["public"]["Enums"]["shipment_status"]
           updated_at: string
           user_id: string
-          vehicle_type: string | null
+          vehicle: Json
         }
         Insert: {
-          arrival_date?: string | null
-          available_volume_m3?: number | null
-          available_weight_kg: number
-          cargo_types: Database["public"]["Enums"]["cargo_type"][]
+          accepted_cargo_types?: Json | null
+          capacity?: Json
+          carrier?: Json
           created_at?: string
-          departure_date: string
-          destination_city: string
-          destination_country: string
+          customs_capabilities?: Json | null
           id?: string
-          notes?: string | null
-          origin_city: string
-          origin_country: string
-          price_per_kg?: number | null
+          offer_id?: string | null
+          pricing?: Json
+          route?: Json
           status?: Database["public"]["Enums"]["shipment_status"]
           updated_at?: string
           user_id: string
-          vehicle_type?: string | null
+          vehicle?: Json
         }
         Update: {
-          arrival_date?: string | null
-          available_volume_m3?: number | null
-          available_weight_kg?: number
-          cargo_types?: Database["public"]["Enums"]["cargo_type"][]
+          accepted_cargo_types?: Json | null
+          capacity?: Json
+          carrier?: Json
           created_at?: string
-          departure_date?: string
-          destination_city?: string
-          destination_country?: string
+          customs_capabilities?: Json | null
           id?: string
-          notes?: string | null
-          origin_city?: string
-          origin_country?: string
-          price_per_kg?: number | null
+          offer_id?: string | null
+          pricing?: Json
+          route?: Json
           status?: Database["public"]["Enums"]["shipment_status"]
           updated_at?: string
           user_id?: string
-          vehicle_type?: string | null
+          vehicle?: Json
         }
         Relationships: []
       }
       shipment_requests: {
         Row: {
-          cargo_type: Database["public"]["Enums"]["cargo_type"]
+          cargo: Json
           created_at: string
-          destination_city: string
-          destination_country: string
+          customs_trade: Json | null
+          dangerous_goods: Json | null
+          demand_id: string | null
+          human_verified: boolean | null
           id: string
-          max_price_per_kg: number | null
-          needed_date: string
-          origin_city: string
-          origin_country: string
-          special_requirements: string | null
+          route: Json
+          shipper: Json
+          special_requirements: Json | null
           status: Database["public"]["Enums"]["shipment_status"]
           updated_at: string
           user_id: string
-          volume_m3: number | null
-          weight_kg: number
+          verification_notes: string | null
         }
         Insert: {
-          cargo_type: Database["public"]["Enums"]["cargo_type"]
+          cargo?: Json
           created_at?: string
-          destination_city: string
-          destination_country: string
+          customs_trade?: Json | null
+          dangerous_goods?: Json | null
+          demand_id?: string | null
+          human_verified?: boolean | null
           id?: string
-          max_price_per_kg?: number | null
-          needed_date: string
-          origin_city: string
-          origin_country: string
-          special_requirements?: string | null
+          route?: Json
+          shipper?: Json
+          special_requirements?: Json | null
           status?: Database["public"]["Enums"]["shipment_status"]
           updated_at?: string
           user_id: string
-          volume_m3?: number | null
-          weight_kg: number
+          verification_notes?: string | null
         }
         Update: {
-          cargo_type?: Database["public"]["Enums"]["cargo_type"]
+          cargo?: Json
           created_at?: string
-          destination_city?: string
-          destination_country?: string
+          customs_trade?: Json | null
+          dangerous_goods?: Json | null
+          demand_id?: string | null
+          human_verified?: boolean | null
           id?: string
-          max_price_per_kg?: number | null
-          needed_date?: string
-          origin_city?: string
-          origin_country?: string
-          special_requirements?: string | null
+          route?: Json
+          shipper?: Json
+          special_requirements?: Json | null
           status?: Database["public"]["Enums"]["shipment_status"]
           updated_at?: string
           user_id?: string
-          volume_m3?: number | null
-          weight_kg?: number
+          verification_notes?: string | null
         }
         Relationships: []
       }
