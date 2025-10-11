@@ -46,7 +46,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">FreightShare</h1>
+          <h1 className="text-2xl font-bold text-primary">FLOWT</h1>
           {user ? (
             <Button variant="outline" onClick={handleSignOut}>
               <LogOut className="w-4 h-4 mr-2" />

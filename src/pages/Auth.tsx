@@ -159,7 +159,7 @@ const Auth = () => {
               <Truck className="w-8 h-8 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl">FreightShare</CardTitle>
+          <CardTitle className="text-2xl">FLOWT</CardTitle>
           <CardDescription>B2B Freight Ridesharing Platform</CardDescription>
         </CardHeader>
         <CardContent>
