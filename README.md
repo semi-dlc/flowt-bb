@@ -2,9 +2,9 @@
 FLOWT matches unused trucking capacity with shippers that need space. The platform combines a marketplace for offers and requests with an agent that coordinates live supply and demand, helping logistics teams collaborate, and filling empty miles. 
 
 Flowt is an experiment to determine the state of vibe-coding tools.
-It is noted that while web applications are mostly created fine, the problems arising in the backend are hard to debug. Furthermore, the inherent security threats in the AI-edited code are interesting.
+It is noted that while web applications are mostly created fine, the problems arising in the backend are hard to debug. Furthermore, the inherent security threats in the AI-edited code are interesting to detect.
 
-The project is not be developed any further.
+The project is not be developed any further, and I distance myself from its sourcecode.
 
 
 ## TODO
